@@ -10,12 +10,17 @@
             --secondary-color: #fe8bad;
             --bg-color: #ffffff;
             --card-bg: #ffffff;
-            --text-color: #09090b;
+            --custom-text-light: #09090b;
+            --custom-text-dark: #fafafa;
+            --custom-header-text: #ffffff;
+            --custom-button-text: #ffffff;
+            --text-color: var(--custom-text-light);
             --text-secondary: #71717a;
             --text-muted: #a1a1aa;
             --border-color: #e4e4e7;
             --border-hover: #d4d4d8;
-            --header-text: #ffffff;
+            --header-text: var(--custom-header-text);
+            --button-text: var(--custom-button-text);
             --filter-bg: #fafafa;
             --accent-bg: #f4f4f5;
             --success: #22c55e;
@@ -30,12 +35,13 @@
         [data-theme="dark"] {
             --bg-color: #09090b;
             --card-bg: #18181b;
-            --text-color: #fafafa;
+            --text-color: var(--custom-text-dark);
             --text-secondary: #a1a1aa;
             --text-muted: #71717a;
             --border-color: #27272a;
             --border-hover: #3f3f46;
-            --header-text: #ffffff;
+            --header-text: var(--custom-header-text);
+            --button-text: var(--custom-button-text);
             --filter-bg: #0c0c0e;
             --accent-bg: #1c1c1f;
             --success: #22c55e;
@@ -55,10 +61,12 @@
             min-height: 100vh;
             padding: 20px;
             transition: background 0.5s ease;
+            color: var(--custom-text-light);
         }
 
         [data-theme="dark"] body {
             background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            color: var(--custom-text-dark);
         }
 
         .container {
@@ -318,7 +326,7 @@
         /* Primary button */
         .btn-primary {
             background: var(--primary-color);
-            color: white;
+            color: var(--button-text);
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
@@ -543,6 +551,7 @@
             font-size: 13px;
             font-weight: 500;
             position: relative;
+            color: var(--text-color);
         }
 
         .tag-filter:hover {
@@ -556,9 +565,15 @@
             border-color: var(--primary-color);
         }
 
+        [data-theme="dark"] .tag-filter {
+            color: var(--text-color);
+            background: var(--accent-bg);
+        }
+
         [data-theme="dark"] .tag-filter.active {
             background: #7c8ef5;
             border-color: #7c8ef5;
+            color: white;
         }
 
         .category-filter {
@@ -874,7 +889,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -883,11 +898,13 @@
         [data-theme="dark"] .modal-content {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
+            color: var(--text-color);
         }
 
         .modal-content h3 {
             margin-bottom: 20px;
             color: #333;
+            font-size: 22px;
         }
 
         [data-theme="dark"] .modal-content h3 {
@@ -956,6 +973,7 @@
             align-items: center;
             gap: 10px;
             flex: 1;
+            position: relative;
         }
 
         .color-preview {
@@ -973,10 +991,18 @@
         }
 
         input[type="color"] {
-            opacity: 0;
             position: absolute;
-            width: 0;
-            height: 0;
+            opacity: 0;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 10001;
+        }
+        
+        /* 색상피커 클릭시 보이도록 */
+        input[type="color"]:focus,
+        input[type="color"]:active {
+            opacity: 1;
         }
 
         .color-info {
@@ -986,6 +1012,11 @@
             background: #f8f9fa;
             padding: 4px 8px;
             border-radius: 4px;
+        }
+
+        [data-theme="dark"] .color-info {
+            color: var(--text-secondary);
+            background: var(--accent-bg);
         }
 
         .checkbox-wrapper {
@@ -1014,6 +1045,12 @@
             color: #666;
             font-size: 12px;
             border-top: 1px solid #e0e0e0;
+        }
+
+        [data-theme="dark"] .footer-credit {
+            background: var(--accent-bg);
+            color: var(--text-secondary);
+            border-top-color: var(--border-color);
         }
 
         .empty-state {
@@ -1148,6 +1185,29 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+        }
+        
+        /* 카테고리 관리 버튼 스타일 - 필터 버튼과 통일 */
+        .btn-category-manage {
+            background: var(--filter-bg) !important;
+            color: var(--text-color) !important;
+            border: 2px solid var(--border-color) !important;
+        }
+        
+        .btn-category-manage:hover {
+            background: var(--accent-bg) !important;
+            border-color: var(--border-hover) !important;
+        }
+        
+        [data-theme="dark"] .btn-category-manage {
+            background: var(--filter-bg) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .btn-category-manage:hover {
+            background: var(--accent-bg) !important;
+            border-color: var(--border-hover) !important;
         }
 
         [data-theme="dark"] .category-manager {
@@ -1284,20 +1344,30 @@
         .file-upload-label {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 12px 24px;
-            background: #28a745;
+            padding: 0 16px;
+            height: 40px;
+            background: var(--success);
             color: white;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+            line-height: 1;
         }
 
         .file-upload-label:hover {
-            background: #218838;
-            transform: translateY(-2px);
+            background: #16a34a;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+        }
+
+        .file-upload-label:active {
+            transform: scale(0.98);
         }
 
         /* Toast 알림 */
@@ -1662,7 +1732,10 @@
                 <button class="btn btn-primary" onclick="openAddModal()">
                     ➕ 새 에셋 추가
                 </button>
-                <button class="btn btn-secondary" onclick="toggleCategoryManager()">
+                <button class="btn btn-primary" onclick="openBulkAddModal()">
+                    📦 대량 추가
+                </button>
+                <button class="btn btn-category-manage" onclick="toggleCategoryManager()">
                     📁 카테고리 관리
                 </button>
                 <button class="btn btn-success" onclick="exportData()">
@@ -1790,6 +1863,9 @@
                 <button type="button" class="btn btn-secondary btn-small" onclick="extractThumbnails()" style="margin-top: 8px; width: 100%;">
                     🔍 링크에서 이미지 찾기
                 </button>
+                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 5px; line-height: 1.4;">
+                    💡 프록시 서버 상태에 따라 이미지 찾기가 실패할 수 있습니다. 실패시 이미지 URL을 직접 입력해주세요.
+                </p>
             </div>
 
             <div class="input-group">
@@ -1889,7 +1965,7 @@
             
             <div class="color-picker-group">
                 <div style="flex: 1;">
-                    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: 500; font-size: 14px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
                         메인 색상
                     </label>
                     <div class="color-picker-wrapper">
@@ -1907,13 +1983,69 @@
 
             <div class="color-picker-group" id="secondaryColorGroup">
                 <div style="flex: 1;">
-                    <label style="display: block; margin-bottom: 8px; color: #555; font-weight: 500; font-size: 14px;">
+                    <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
                         보조 색상
                     </label>
                     <div class="color-picker-wrapper">
                         <div class="color-preview" id="secondaryPreview" onclick="document.getElementById('secondaryColor').click()"></div>
                         <input type="color" id="secondaryColor" value="#fe8bad" onchange="updateThemePreview()">
                         <span class="color-info" id="secondaryColorCode">#fe8bad</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--border-color);">
+                <h5 style="margin-bottom: 15px; color: var(--text-color); font-size: 15px;">✍️ 텍스트 색상</h5>
+                
+                <div class="color-picker-group">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
+                            라이트 모드 텍스트
+                        </label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-preview" id="textLightPreview" onclick="document.getElementById('textLightColor').click()"></div>
+                            <input type="color" id="textLightColor" value="#09090b" onchange="updateTextColorPreview()">
+                            <span class="color-info" id="textLightColorCode">#09090b</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-picker-group">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
+                            다크 모드 텍스트
+                        </label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-preview" id="textDarkPreview" onclick="document.getElementById('textDarkColor').click()"></div>
+                            <input type="color" id="textDarkColor" value="#fafafa" onchange="updateTextColorPreview()">
+                            <span class="color-info" id="textDarkColorCode">#fafafa</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-picker-group" style="margin-top: 15px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
+                            헤더 텍스트 색상
+                        </label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-preview" id="headerTextPreview" onclick="document.getElementById('headerTextColor').click()"></div>
+                            <input type="color" id="headerTextColor" value="#ffffff" onchange="updateTextColorPreview()">
+                            <span class="color-info" id="headerTextColorCode">#ffffff</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="color-picker-group">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 8px; color: var(--text-secondary); font-weight: 500; font-size: 14px;">
+                            버튼 텍스트 색상
+                        </label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-preview" id="buttonTextPreview" onclick="document.getElementById('buttonTextColor').click()"></div>
+                            <input type="color" id="buttonTextColor" value="#ffffff" onchange="updateTextColorPreview()">
+                            <span class="color-info" id="buttonTextColorCode">#ffffff</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1969,6 +2101,70 @@
         </div>
     </div>
 
+    <div id="bulkAddModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <h3>📦 대량 추가</h3>
+            
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                여러 BOOTH 링크를 한번에 추가할 수 있습니다. 각 링크는 새 줄로 구분해주세요.
+            </p>
+
+            <div class="input-group">
+                <label>카테고리 선택 *</label>
+                <select id="bulkCategory">
+                    <option value="">카테고리 선택</option>
+                </select>
+            </div>
+
+            <div class="checkbox-wrapper" style="margin-bottom: 15px;">
+                <input type="checkbox" id="bulkAutoFetchImages" checked>
+                <label for="bulkAutoFetchImages">이미지 자동 찾기 (첫 번째 이미지 사용)</label>
+            </div>
+            
+            <div style="background: var(--filter-bg); padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid var(--primary-color);">
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                    💡 <strong>참고:</strong> 프록시 서버 상태에 따라 이미지 자동 찾기가 제대로 작동하지 않을 수 있습니다. 
+                    이미지가 제대로 추가되지 않는 경우, 개별 추가를 이용하거나 나중에 수정 기능으로 이미지를 추가해주세요.
+                </p>
+            </div>
+
+            <div class="input-group">
+                <label>BOOTH 링크 목록 (한 줄에 하나씩)</label>
+                <textarea id="bulkLinks" placeholder="https://booth.pm/...&#10;https://booth.pm/...&#10;https://booth.pm/..." style="min-height: 200px; font-family: monospace; font-size: 13px;"></textarea>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    💡 한 줄에 하나씩 링크를 입력하세요. 제목과 이미지를 자동으로 가져옵니다.
+                </p>
+            </div>
+
+            <div class="input-group">
+                <label>일괄 메모 (선택사항)</label>
+                <textarea id="bulkMemo" placeholder="모든 에셋에 동일하게 적용될 메모를 입력하세요..." style="min-height: 80px; resize: vertical;"></textarea>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    📝 입력한 메모가 추가되는 모든 에셋에 동일하게 적용됩니다.
+                </p>
+            </div>
+
+            <div id="bulkProgress" style="display: none; margin-top: 15px; padding: 15px; background: var(--filter-bg); border-radius: 8px; border: 2px solid var(--border-color);">
+                <p style="font-size: 13px; color: var(--text-color); margin-bottom: 8px;">
+                    <strong>처리 중...</strong>
+                </p>
+                <div style="width: 100%; height: 8px; background: var(--accent-bg); border-radius: 4px; overflow: hidden;">
+                    <div id="bulkProgressBar" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s;"></div>
+                </div>
+                <p id="bulkProgressText" style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;"></p>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="processBulkAdd()">
+                    📦 일괄 추가
+                </button>
+                <button class="btn btn-secondary" onclick="closeBulkAddModal()">
+                    취소
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 데이터 저장소
         let assets = [];
@@ -1990,9 +2186,20 @@
         let darkMode = false;
         let autoBackup = false;
         let zoomLevel = 100;
+        let textLightColor = '#09090b';
+        let textDarkColor = '#fafafa';
+        let headerTextColor = '#ffffff';
+        let buttonTextColor = '#ffffff';
         let filterCollapsedState = {
             category: false,
             tag: false
+        };
+        
+        // 팝업 임시 데이터 저장용 변수
+        let tempModalData = {
+            asset: {},
+            bulk: {},
+            settings: {}
         };
 
         // 초기화
@@ -2030,6 +2237,10 @@
             const savedCardSize = localStorage.getItem('boothCardSize');
             const savedSortMode = localStorage.getItem('boothSortMode');
             const savedTagFilterMode = localStorage.getItem('boothTagFilterMode'); // ✨ [UX 개선] 태그 필터 모드 로드
+            const savedTextLightColor = localStorage.getItem('boothTextLightColor');
+            const savedTextDarkColor = localStorage.getItem('boothTextDarkColor');
+            const savedHeaderTextColor = localStorage.getItem('boothHeaderTextColor');
+            const savedButtonTextColor = localStorage.getItem('boothButtonTextColor');
             
             if (savedAssets) assets = JSON.parse(savedAssets);
             if (savedCategories) categories = JSON.parse(savedCategories);
@@ -2052,6 +2263,10 @@
             if (savedCardSize) cardSize = savedCardSize;
             if (savedSortMode) sortMode = savedSortMode;
             if (savedTagFilterMode) tagFilterMode = savedTagFilterMode; // ✨ [UX 개선] 태그 필터 모드 적용
+            if (savedTextLightColor) textLightColor = savedTextLightColor;
+            if (savedTextDarkColor) textDarkColor = savedTextDarkColor;
+            if (savedHeaderTextColor) headerTextColor = savedHeaderTextColor;
+            if (savedButtonTextColor) buttonTextColor = savedButtonTextColor;
         }
 
         // 로컬 스토리지에 저장
@@ -2402,15 +2617,32 @@
             categorySelect.innerHTML = '<option value="">카테고리 선택</option>' +
                 categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
             
-            // 폼 초기화
-            document.getElementById('assetCategory').value = '';
-            document.getElementById('assetLink').value = '';
-            document.getElementById('assetImage').value = '';
-            document.getElementById('assetTitle').value = '';
-            document.getElementById('assetTags').value = '';
-            document.getElementById('assetMemo').value = '';
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imagePreview').src = '';
+            // 임시 저장된 데이터가 있으면 복원, 없으면 초기화
+            if (tempModalData.asset && Object.keys(tempModalData.asset).length > 0) {
+                document.getElementById('assetCategory').value = tempModalData.asset.category || '';
+                document.getElementById('assetLink').value = tempModalData.asset.link || '';
+                document.getElementById('assetImage').value = tempModalData.asset.image || '';
+                document.getElementById('assetTitle').value = tempModalData.asset.title || '';
+                document.getElementById('assetTags').value = tempModalData.asset.tags || '';
+                document.getElementById('assetMemo').value = tempModalData.asset.memo || '';
+                
+                // 이미지 프리뷰 복원
+                if (tempModalData.asset.image) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = tempModalData.asset.image;
+                    preview.style.display = 'block';
+                }
+            } else {
+                // 폼 초기화
+                document.getElementById('assetCategory').value = '';
+                document.getElementById('assetLink').value = '';
+                document.getElementById('assetImage').value = '';
+                document.getElementById('assetTitle').value = '';
+                document.getElementById('assetTags').value = '';
+                document.getElementById('assetMemo').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('imagePreview').src = '';
+            }
             
             // 썸네일 선택기 초기화
             document.getElementById('thumbnailSelector').style.display = 'none';
@@ -2422,6 +2654,18 @@
 
         // 모달 닫기
         function closeModal() {
+            // 현재 입력된 데이터를 임시 저장 (수정 모드가 아닐 때만)
+            if (!editingAssetId) {
+                tempModalData.asset = {
+                    category: document.getElementById('assetCategory').value,
+                    link: document.getElementById('assetLink').value,
+                    image: document.getElementById('assetImage').value,
+                    title: document.getElementById('assetTitle').value,
+                    tags: document.getElementById('assetTags').value,
+                    memo: document.getElementById('assetMemo').value
+                };
+            }
+            
             document.getElementById('assetModal').classList.remove('active');
             // 썸네일 선택기 초기화
             document.getElementById('thumbnailSelector').style.display = 'none';
@@ -2472,6 +2716,10 @@
             saveToLocalStorage();
             renderFilters();
             renderAssets();
+            
+            // 저장 성공시 임시 데이터 초기화
+            tempModalData.asset = {};
+            
             closeModal();
             showToast(editingAssetId ? '에셋이 수정되었습니다' : '에셋이 추가되었습니다', 'success');
         }
@@ -2537,7 +2785,7 @@
         // 데이터 내보내기 (모든 설정 포함)
         function exportData() {
             const data = {
-                version: '2.1',
+                version: '2.3',
                 assets,
                 categories,
                 allTags,
@@ -2551,7 +2799,11 @@
                     darkMode,
                     cardSize,
                     sortMode,
-                    tagFilterMode // ✨ [UX 개선] 태그 필터 모드 저장
+                    tagFilterMode, // ✨ [UX 개선] 태그 필터 모드 저장
+                    textLightColor,
+                    textDarkColor,
+                    headerTextColor,
+                    buttonTextColor
                 },
                 exportDate: new Date().toISOString()
             };
@@ -2636,6 +2888,23 @@
                                 tagFilterMode = data.settings.tagFilterMode;
                                 localStorage.setItem('boothTagFilterMode', tagFilterMode);
                             }
+                            // 텍스트 색상 불러오기
+                            if (data.settings.textLightColor) {
+                                textLightColor = data.settings.textLightColor;
+                                localStorage.setItem('boothTextLightColor', textLightColor);
+                            }
+                            if (data.settings.textDarkColor) {
+                                textDarkColor = data.settings.textDarkColor;
+                                localStorage.setItem('boothTextDarkColor', textDarkColor);
+                            }
+                            if (data.settings.headerTextColor) {
+                                headerTextColor = data.settings.headerTextColor;
+                                localStorage.setItem('boothHeaderTextColor', headerTextColor);
+                            }
+                            if (data.settings.buttonTextColor) {
+                                buttonTextColor = data.settings.buttonTextColor;
+                                localStorage.setItem('boothButtonTextColor', buttonTextColor);
+                            }
                             applyTheme();
                             applyDarkMode();
                             // ✨ [UX 개선] 태그 필터 모드 버튼 텍스트 업데이트
@@ -2661,10 +2930,18 @@
             const finalSecondary = useGradient ? secondaryColor : primaryColor;
             document.documentElement.style.setProperty('--primary-color', primaryColor);
             document.documentElement.style.setProperty('--secondary-color', finalSecondary);
+            document.documentElement.style.setProperty('--custom-text-light', textLightColor);
+            document.documentElement.style.setProperty('--custom-text-dark', textDarkColor);
+            document.documentElement.style.setProperty('--custom-header-text', headerTextColor);
+            document.documentElement.style.setProperty('--custom-button-text', buttonTextColor);
             
             document.getElementById('primaryColor').value = primaryColor;
             document.getElementById('secondaryColor').value = secondaryColor;
             document.getElementById('useGradient').checked = useGradient;
+            document.getElementById('textLightColor').value = textLightColor;
+            document.getElementById('textDarkColor').value = textDarkColor;
+            document.getElementById('headerTextColor').value = headerTextColor;
+            document.getElementById('buttonTextColor').value = buttonTextColor;
             
             updateColorPreviews();
             toggleGradientUI();
@@ -2680,6 +2957,43 @@
             document.getElementById('secondaryPreview').style.background = 
                 useGradient ? secondaryColor : primaryColor;
             document.getElementById('secondaryColorCode').textContent = secondaryColor;
+            
+            document.getElementById('textLightPreview').style.background = textLightColor;
+            document.getElementById('textLightColorCode').textContent = textLightColor;
+            
+            document.getElementById('textDarkPreview').style.background = textDarkColor;
+            document.getElementById('textDarkColorCode').textContent = textDarkColor;
+            
+            document.getElementById('headerTextPreview').style.background = headerTextColor;
+            document.getElementById('headerTextColorCode').textContent = headerTextColor;
+            
+            document.getElementById('buttonTextPreview').style.background = buttonTextColor;
+            document.getElementById('buttonTextColorCode').textContent = buttonTextColor;
+        }
+
+        // 텍스트 색상 미리보기 업데이트
+        function updateTextColorPreview() {
+            textLightColor = document.getElementById('textLightColor').value;
+            textDarkColor = document.getElementById('textDarkColor').value;
+            headerTextColor = document.getElementById('headerTextColor').value;
+            buttonTextColor = document.getElementById('buttonTextColor').value;
+            
+            document.documentElement.style.setProperty('--custom-text-light', textLightColor);
+            document.documentElement.style.setProperty('--custom-text-dark', textDarkColor);
+            document.documentElement.style.setProperty('--custom-header-text', headerTextColor);
+            document.documentElement.style.setProperty('--custom-button-text', buttonTextColor);
+            
+            document.getElementById('textLightPreview').style.background = textLightColor;
+            document.getElementById('textLightColorCode').textContent = textLightColor;
+            
+            document.getElementById('textDarkPreview').style.background = textDarkColor;
+            document.getElementById('textDarkColorCode').textContent = textDarkColor;
+            
+            document.getElementById('headerTextPreview').style.background = headerTextColor;
+            document.getElementById('headerTextColorCode').textContent = headerTextColor;
+            
+            document.getElementById('buttonTextPreview').style.background = buttonTextColor;
+            document.getElementById('buttonTextColorCode').textContent = buttonTextColor;
         }
 
         // 테마 미리보기 (실시간)
@@ -2730,10 +3044,18 @@
             primaryColor = document.getElementById('primaryColor').value;
             secondaryColor = document.getElementById('secondaryColor').value;
             useGradient = document.getElementById('useGradient').checked;
+            textLightColor = document.getElementById('textLightColor').value;
+            textDarkColor = document.getElementById('textDarkColor').value;
+            headerTextColor = document.getElementById('headerTextColor').value;
+            buttonTextColor = document.getElementById('buttonTextColor').value;
             
             localStorage.setItem('boothPrimaryColor', primaryColor);
             localStorage.setItem('boothSecondaryColor', secondaryColor);
             localStorage.setItem('boothUseGradient', useGradient);
+            localStorage.setItem('boothTextLightColor', textLightColor);
+            localStorage.setItem('boothTextDarkColor', textDarkColor);
+            localStorage.setItem('boothHeaderTextColor', headerTextColor);
+            localStorage.setItem('boothButtonTextColor', buttonTextColor);
             
             applyTheme();
             showToast('설정이 저장되었습니다!', 'success');
@@ -2749,6 +3071,10 @@
             primaryColor = '#feb4ce';
             secondaryColor = '#fe8bad';
             useGradient = true;
+            textLightColor = '#09090b';
+            textDarkColor = '#fafafa';
+            headerTextColor = '#ffffff';
+            buttonTextColor = '#ffffff';
             
             // 로컬 스토리지에서 제거
             localStorage.removeItem('boothAppTitle');
@@ -2756,6 +3082,10 @@
             localStorage.removeItem('boothPrimaryColor');
             localStorage.removeItem('boothSecondaryColor');
             localStorage.removeItem('boothUseGradient');
+            localStorage.removeItem('boothTextLightColor');
+            localStorage.removeItem('boothTextDarkColor');
+            localStorage.removeItem('boothHeaderTextColor');
+            localStorage.removeItem('boothButtonTextColor');
             
             // UI 업데이트
             document.getElementById('appTitle').textContent = appTitle;
@@ -3237,7 +3567,7 @@
             }
             
             const data = {
-                version: '2.1',
+                version: '2.3',
                 assets,
                 categories,
                 allTags,
@@ -3251,7 +3581,11 @@
                     darkMode,
                     cardSize,
                     sortMode,
-                    tagFilterMode // ✨ [UX 개선] 태그 필터 모드 저장
+                    tagFilterMode, // ✨ [UX 개선] 태그 필터 모드 저장
+                    textLightColor,
+                    textDarkColor,
+                    headerTextColor,
+                    buttonTextColor
                 },
                 exportDate: new Date().toISOString()
             };
@@ -3266,6 +3600,278 @@
             
             localStorage.setItem('lastAutoBackup', now.toString());
             showToast('자동 백업 완료', 'success');
+        }
+
+        // 대량추가 모달 열기
+        function openBulkAddModal() {
+            // 카테고리 목록 업데이트
+            const select = document.getElementById('bulkCategory');
+            select.innerHTML = '<option value="">카테고리 선택</option>' +
+                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            
+            // 임시 저장된 데이터가 있으면 복원, 없으면 초기화
+            if (tempModalData.bulk && Object.keys(tempModalData.bulk).length > 0) {
+                document.getElementById('bulkCategory').value = tempModalData.bulk.category || '';
+                document.getElementById('bulkLinks').value = tempModalData.bulk.links || '';
+                document.getElementById('bulkMemo').value = tempModalData.bulk.memo || '';
+                document.getElementById('bulkAutoFetchImages').checked = tempModalData.bulk.autoFetch !== undefined ? tempModalData.bulk.autoFetch : true;
+            } else {
+                // 입력 초기화
+                document.getElementById('bulkCategory').value = '';
+                document.getElementById('bulkLinks').value = '';
+                document.getElementById('bulkMemo').value = '';
+                document.getElementById('bulkAutoFetchImages').checked = true;
+            }
+            
+            document.getElementById('bulkAddModal').classList.add('active');
+        }
+
+        // 대량추가 모달 닫기
+        function closeBulkAddModal() {
+            // 현재 입력된 데이터를 임시 저장
+            tempModalData.bulk = {
+                category: document.getElementById('bulkCategory').value,
+                links: document.getElementById('bulkLinks').value,
+                memo: document.getElementById('bulkMemo').value,
+                autoFetch: document.getElementById('bulkAutoFetchImages').checked
+            };
+            
+            document.getElementById('bulkAddModal').classList.remove('active');
+        }
+
+        // 대량추가 처리
+        async function processBulkAdd() {
+            const category = document.getElementById('bulkCategory').value;
+            const linksText = document.getElementById('bulkLinks').value.trim();
+            const bulkMemo = document.getElementById('bulkMemo').value.trim();
+            const autoFetchImages = document.getElementById('bulkAutoFetchImages').checked;
+            
+            if (!category) {
+                showToast('카테고리를 선택해주세요', 'error');
+                return;
+            }
+            
+            if (!linksText) {
+                showToast('링크를 입력해주세요', 'error');
+                return;
+            }
+            
+            // 줄바꿈으로 링크 분리
+            const links = linksText.split('\n')
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+            
+            if (links.length === 0) {
+                showToast('유효한 링크가 없습니다', 'error');
+                return;
+            }
+            
+            // 진행바 표시
+            const progressDiv = document.getElementById('bulkProgress');
+            const progressBar = document.getElementById('bulkProgressBar');
+            const progressText = document.getElementById('bulkProgressText');
+            progressDiv.style.display = 'block';
+            
+            // 버튼 비활성화
+            const addButton = event.target;
+            addButton.disabled = true;
+            
+            let successCount = 0;
+            const timestamp = Date.now();
+            
+            // 각 링크를 순차적으로 처리
+            for (let index = 0; index < links.length; index++) {
+                const link = links[index];
+                
+                // 진행 상황 업데이트
+                const progress = ((index + 1) / links.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${index + 1} / ${links.length} 처리 중...`;
+                
+                // 링크가 BOOTH 링크인지 확인
+                if (!link.includes('booth.pm')) {
+                    continue;
+                }
+                
+                let title = `에셋 ${timestamp + index}`;
+                let image = '';
+                
+                // 제목과 이미지 자동 가져오기
+                if (autoFetchImages) {
+                    try {
+                        const data = await fetchBoothData(link);
+                        if (data && data.title) title = data.title;
+                        if (data && data.image) image = data.image;
+                    } catch (error) {
+                        console.log(`링크 ${index + 1} 정보 가져오기 실패:`, error);
+                        // 실패해도 계속 진행
+                    }
+                }
+                
+                const newAsset = {
+                    id: Date.now() + index + Math.random(),
+                    category,
+                    link,
+                    imageUrl: image || '', // imageUrl로 속성명 통일
+                    title,
+                    tags: [],
+                    memo: bulkMemo || '', // 일괄 메모 적용
+                    addedDate: new Date().toISOString(),
+                    favorite: false
+                };
+                
+                assets.unshift(newAsset);
+                successCount++;
+                
+                // 각 요청 사이에 짧은 딜레이 (서버 부하 방지)
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // 저장 및 렌더링
+            saveToLocalStorage();
+            renderFilters();
+            renderAssets();
+            updateStats();
+            
+            // 진행바 숨기기
+            progressDiv.style.display = 'none';
+            progressBar.style.width = '0%';
+            
+            // 버튼 활성화
+            addButton.disabled = false;
+            
+            // 저장 성공시 임시 데이터 초기화
+            tempModalData.bulk = {};
+            
+            // 모달 닫기
+            closeBulkAddModal();
+            
+            showToast(`${successCount}개의 에셋이 추가되었습니다!`, 'success');
+        }
+        
+        // BOOTH 페이지에서 제목과 이미지 가져오기
+        async function fetchBoothData(url) {
+            // 기본값
+            const defaultResult = { title: '', image: '' };
+            
+            try {
+                // CORS 프록시 사용
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/html',
+                    },
+                    timeout: 10000 // 10초 타임아웃
+                });
+                
+                if (!response.ok) {
+                    console.warn(`HTTP 오류: ${response.status}`);
+                    return defaultResult;
+                }
+                
+                const html = await response.text();
+                
+                if (!html || html.length < 100) {
+                    console.warn('빈 응답 또는 너무 짧은 응답');
+                    return defaultResult;
+                }
+                
+                // HTML 파싱
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // 제목 추출
+                let title = '';
+                const titleElement = doc.querySelector('h1.item-name') || 
+                                   doc.querySelector('.item-info h1') ||
+                                   doc.querySelector('meta[property="og:title"]') ||
+                                   doc.querySelector('title');
+                
+                if (titleElement) {
+                    if (titleElement.tagName === 'META') {
+                        title = titleElement.content || '';
+                    } else if (titleElement.tagName === 'TITLE') {
+                        title = titleElement.textContent.trim().split('|')[0].trim();
+                    } else {
+                        title = titleElement.textContent.trim();
+                    }
+                }
+                
+                // 이미지 추출 (첫 번째 이미지)
+                let image = '';
+                const images = new Set();
+                
+                // 1. Open Graph 이미지 (가장 신뢰도 높음)
+                const ogImage = doc.querySelector('meta[property="og:image"]');
+                if (ogImage && ogImage.content) {
+                    images.add(ogImage.content);
+                }
+                
+                // 2. JSON-LD에서 이미지 찾기
+                const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                scripts.forEach(script => {
+                    try {
+                        const data = JSON.parse(script.textContent);
+                        if (data.image) {
+                            if (Array.isArray(data.image)) {
+                                data.image.forEach(img => {
+                                    if (typeof img === 'string') {
+                                        images.add(img);
+                                    } else if (img && img.url) {
+                                        images.add(img.url);
+                                    }
+                                });
+                            } else if (typeof data.image === 'string') {
+                                images.add(data.image);
+                            } else if (data.image && data.image.url) {
+                                images.add(data.image.url);
+                            }
+                        }
+                    } catch (e) {
+                        // JSON 파싱 실패는 무시
+                    }
+                });
+                
+                // 3. Booth 특정 이미지 URL 패턴
+                const boothImagePattern = /https:\/\/booth\.pximg\.net\/[^\s"'<>]+?\.(?:jpg|jpeg|png|gif|webp)/gi;
+                const matches = html.match(boothImagePattern);
+                if (matches) {
+                    matches.forEach(url => {
+                        if (!url.includes('_icon') && !url.includes('/c/128x128/') && !url.includes('/c/300x300/')) {
+                            const cleanUrl = url.split('?')[0];
+                            images.add(cleanUrl);
+                        }
+                    });
+                }
+                
+                // 4. 일반 이미지 태그 (더 넓은 범위)
+                const imgTags = doc.querySelectorAll('img');
+                imgTags.forEach(img => {
+                    const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+                    if (src && src.startsWith('http')) {
+                        // 아이콘, 아바타, 작은 이미지 제외
+                        if (!src.includes('icon') && !src.includes('avatar') && !src.includes('logo')) {
+                            images.add(src);
+                        }
+                    }
+                });
+                
+                // 첫 번째 이미지 사용
+                const imageArray = Array.from(images);
+                if (imageArray.length > 0) {
+                    image = imageArray[0];
+                }
+                
+                return { 
+                    title: title || '', 
+                    image: image || '' 
+                };
+                
+            } catch (error) {
+                console.error('데이터 가져오기 실패:', url, error);
+                return defaultResult; // 에러 시에도 빈 객체 반환
+            }
         }
 
         // 페이지 로드 시 초기화
@@ -3287,6 +3893,12 @@
         document.getElementById('resetConfirmModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeResetConfirmModal();
+            }
+        });
+
+        document.getElementById('bulkAddModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBulkAddModal();
             }
         });
     </script>
