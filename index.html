@@ -707,7 +707,13 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            background: #f0f0f0;
+            background: var(--filter-bg);
+            transition: opacity 0.2s ease-in-out;
+        }
+        
+        /* 이미지 로딩 중 깜빡임 방지 */
+        .asset-image[src*="placeholder"] {
+            opacity: 0.9;
         }
 
         .asset-content {
@@ -2152,6 +2158,7 @@
                     <div id="bulkProgressBar" style="height: 100%; background: var(--primary-color); width: 0%; transition: width 0.3s;"></div>
                 </div>
                 <p id="bulkProgressText" style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;"></p>
+                <p id="bulkEstimatedTime" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></p>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -2543,17 +2550,23 @@
             } else {
                 const className = viewMode === 'grid' ? `assets-grid size-${cardSize}` : `assets-list list-view size-${cardSize}`;
                 container.className = className;
-                container.innerHTML = filteredAssets.map(asset => `
+                container.innerHTML = filteredAssets.map(asset => {
+                    const hasImage = asset.imageUrl && asset.imageUrl.trim() !== '';
+                    const imageSrc = hasImage ? asset.imageUrl : 'https://placehold.co/600x400/e4e4e7/71717a?text=No+Image';
+                    const cursorStyle = hasImage ? 'cursor: zoom-in;' : 'cursor: default;';
+                    const imageClick = hasImage ? `onclick="openImageZoom('${asset.imageUrl.replace(/'/g, "\\'")}', '${asset.title.replace(/'/g, "\\'")}')"` : '';
+                    
+                    return `
                     <div class="asset-card">
                         <button class="favorite-btn ${asset.favorite ? 'active' : ''}" onclick="toggleFavorite(${asset.id})" title="즐겨찾기">
                             ${asset.favorite ? '⭐' : '☆'}
                         </button>
-                        <img src="${asset.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" 
+                        <img src="${imageSrc}" 
                              alt="${asset.title}"
                              class="asset-image"
-                             loading="lazy" style="cursor: zoom-in;"
-                             onclick="openImageZoom('${asset.imageUrl?.replace(/'/g, "\\'")}', '${asset.title.replace(/'/g, "\\'")}')"
-                             onerror="this.src='https://via.placeholder.com/300x200?text=Image+Error'">
+                             loading="lazy" style="${cursorStyle}"
+                             ${imageClick}
+                             onerror="if(this.src!=='https://placehold.co/600x400/ef4444/ffffff?text=Error'){this.src='https://placehold.co/600x400/ef4444/ffffff?text=Error'}">
                         <div class="asset-content">
                             <span class="asset-category">${asset.category}</span>
                             <div class="asset-title">${asset.title}</div>
@@ -2591,7 +2604,8 @@
                             </div>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             
             updateStats();
@@ -3356,117 +3370,164 @@
             selectorEl.style.display = 'none';
             gridEl.innerHTML = '';
 
-            try {
-                // CORS 프록시 사용
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const response = await fetch(proxyUrl + encodeURIComponent(link));
-                
-                if (!response.ok) {
-                    throw new Error('페이지를 가져올 수 없습니다');
-                }
+            // 여러 CORS 프록시 옵션 (fallback)
+            const proxyServers = [
+                `https://api.allorigins.win/raw?url=`,
+                `https://corsproxy.io/?`,
+                `https://api.codetabs.com/v1/proxy?quest=`
+            ];
 
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // 이미지 추출
-                const images = new Set();
-                
-                // 1. JSON-LD Schema.org 데이터에서 이미지 추출 (가장 높은 품질)
-                const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                jsonLdScripts.forEach(script => {
-                    try {
-                        const data = JSON.parse(script.textContent);
-                        // Product 타입의 image 필드
-                        if (data.image) {
-                            if (typeof data.image === 'string') {
-                                images.add(data.image);
-                            } else if (Array.isArray(data.image)) {
-                                data.image.forEach(img => {
-                                    if (typeof img === 'string') {
-                                        images.add(img);
-                                    } else if (img.url) {
-                                        images.add(img.url);
-                                    }
-                                });
-                            } else if (data.image.url) {
-                                images.add(data.image.url);
-                            }
-                        }
-                    } catch (e) {
-                        // JSON 파싱 실패 시 무시
+            // 각 프록시를 순서대로 시도
+            for (let proxyIndex = 0; proxyIndex < proxyServers.length; proxyIndex++) {
+                try {
+                    const proxyUrl = proxyServers[proxyIndex] + encodeURIComponent(link);
+                    const response = await fetch(proxyUrl);
+                    
+                    if (!response.ok) {
+                        console.warn(`프록시 ${proxyIndex + 1} 실패`);
+                        continue; // 다음 프록시 시도
                     }
-                });
-                
-                // 2. Open Graph 이미지
-                const ogImage = doc.querySelector('meta[property="og:image"]');
-                if (ogImage && ogImage.content) {
-                    images.add(ogImage.content);
-                }
 
-                // 3. Twitter 카드 이미지
-                const twitterImage = doc.querySelector('meta[name="twitter:image"]');
-                if (twitterImage && twitterImage.content) {
-                    images.add(twitterImage.content);
-                }
+                    const html = await response.text();
+                    
+                    if (!html || html.length < 100) {
+                        console.warn(`프록시 ${proxyIndex + 1} 응답이 너무 짧음`);
+                        continue;
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
 
-                // 4. Booth 특정 이미지 URL 패턴 찾기 (정규식)
-                const boothImagePattern = /https:\/\/booth\.pximg\.net\/[^\s"'<>]+?\.(?:jpg|jpeg|png|gif|webp)/gi;
-                const matches = html.match(boothImagePattern);
-                if (matches) {
-                    matches.forEach(url => {
-                        // 작은 썸네일이나 아이콘 제외
-                        if (!url.includes('_icon') && !url.includes('/c/128x128/') && !url.includes('/c/300x300/')) {
-                            // URL에서 쿼리 파라미터 제거
-                            const cleanUrl = url.split('?')[0];
-                            images.add(cleanUrl);
+                    // 삭제된 페이지 감지 (404 페이지)
+                    const notFoundText = doc.body.textContent || '';
+                    const hasNotFoundGirl = doc.querySelector('.not_found_girl');
+                    const dialogH1 = doc.querySelector('.dialog h1');
+                    
+                    const isDeleted = 
+                        notFoundText.includes('お探しの商品が見つかりませんでした') || 
+                        notFoundText.includes('商品が見つかりません') ||
+                        notFoundText.includes('誠に申し訳ございません') ||
+                        hasNotFoundGirl !== null ||
+                        (dialogH1 && dialogH1.textContent.includes('見つかりませんでした'));
+                    
+                    if (isDeleted) {
+                        loadingEl.style.display = 'none';
+                        showToast('🚫 이 상품 페이지를 찾을 수 없습니다. 삭제되었거나 이동되었을 수 있습니다.', 'error');
+                        return;
+                    }
+
+                    // 이미지 추출
+                    const images = new Set();
+                    
+                    // 1. JSON-LD Schema.org 데이터에서 이미지 추출 (가장 높은 품질)
+                    const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    jsonLdScripts.forEach(script => {
+                        try {
+                            const data = JSON.parse(script.textContent);
+                            // Product 타입의 image 필드
+                            if (data.image) {
+                                if (typeof data.image === 'string') {
+                                    images.add(data.image);
+                                } else if (Array.isArray(data.image)) {
+                                    data.image.forEach(img => {
+                                        if (typeof img === 'string') {
+                                            images.add(img);
+                                        } else if (img.url) {
+                                            images.add(img.url);
+                                        }
+                                    });
+                                } else if (data.image.url) {
+                                    images.add(data.image.url);
+                                }
+                            }
+                        } catch (e) {
+                            // JSON 파싱 실패 시 무시
                         }
                     });
-                }
+                    
+                    // 2. Open Graph 이미지
+                    const ogImage = doc.querySelector('meta[property="og:image"]');
+                    if (ogImage && ogImage.content) {
+                        images.add(ogImage.content);
+                    }
 
-                // 5. 모든 이미지 태그에서 추출
-                const imgTags = doc.querySelectorAll('img');
-                imgTags.forEach(img => {
-                    const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
-                    if (src && src.startsWith('http')) {
-                        // 아이콘, 아바타, 작은 이미지 제외
-                        if (!src.includes('icon') && !src.includes('avatar') && !src.includes('logo')) {
-                            images.add(src);
+                    // 3. Twitter 카드 이미지
+                    const twitterImage = doc.querySelector('meta[name="twitter:image"]');
+                    if (twitterImage && twitterImage.content) {
+                        images.add(twitterImage.content);
+                    }
+
+                    // 4. Booth 특정 이미지 URL 패턴 찾기 (정규식)
+                    const boothImagePattern = /https:\/\/booth\.pximg\.net\/[^\s"'<>]+?\.(?:jpg|jpeg|png|gif|webp)/gi;
+                    const matches = html.match(boothImagePattern);
+                    if (matches) {
+                        matches.forEach(url => {
+                            // 작은 썸네일이나 아이콘 제외
+                            if (!url.includes('_icon') && !url.includes('/c/128x128/') && !url.includes('/c/300x300/')) {
+                                // URL에서 쿼리 파라미터 제거
+                                const cleanUrl = url.split('?')[0];
+                                images.add(cleanUrl);
+                            }
+                        });
+                    }
+
+                    // 5. 모든 이미지 태그에서 추출
+                    const imgTags = doc.querySelectorAll('img');
+                    imgTags.forEach(img => {
+                        const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+                        if (src && src.startsWith('http')) {
+                            // 아이콘, 아바타, 작은 이미지 제외
+                            if (!src.includes('icon') && !src.includes('avatar') && !src.includes('logo')) {
+                                images.add(src);
+                            }
+                        }
+                    });
+
+                    const imageArray = Array.from(images);
+
+                    if (imageArray.length === 0) {
+                        if (proxyIndex < proxyServers.length - 1) {
+                            console.warn(`프록시 ${proxyIndex + 1}로 이미지를 찾지 못함, 다음 프록시 시도`);
+                            continue; // 다음 프록시 시도
+                        } else {
+                            throw new Error('이미지를 찾을 수 없습니다');
                         }
                     }
-                });
 
-                const imageArray = Array.from(images);
+                    // 성공 - 이미지 그리드 생성
+                    loadingEl.style.display = 'none';
+                    selectorEl.style.display = 'block';
+                    document.getElementById('imageCount').textContent = `${imageArray.length}개의 이미지 발견`;
 
-                if (imageArray.length === 0) {
-                    throw new Error('이미지를 찾을 수 없습니다');
+                    gridEl.innerHTML = imageArray.map((imgUrl, index) => `
+                        <div class="thumbnail-option ${index === 0 ? 'selected' : ''}" 
+                             onclick="selectThumbnail('${imgUrl.replace(/'/g, "\\'")}', this)">
+                            <img src="${imgUrl}" alt="Thumbnail ${index + 1}" 
+                                 onerror="this.parentElement.style.display='none'"
+                                 loading="lazy">
+                        </div>
+                    `).join('');
+
+                    // 첫 번째 이미지를 기본 선택
+                    document.getElementById('assetImage').value = imageArray[0];
+                    updateImagePreview();
+
+                    showToast(`${imageArray.length}개의 이미지를 찾았습니다`, 'success');
+                    return; // 성공했으므로 함수 종료
+
+                } catch (error) {
+                    console.warn(`프록시 ${proxyIndex + 1} 실패:`, error.message);
+                    // 마지막 프록시가 아니면 다음 프록시 시도
+                    if (proxyIndex < proxyServers.length - 1) {
+                        continue;
+                    }
                 }
-
-                // 이미지 그리드 생성
-                loadingEl.style.display = 'none';
-                selectorEl.style.display = 'block';
-                document.getElementById('imageCount').textContent = `${imageArray.length}개의 이미지 발견`;
-
-                gridEl.innerHTML = imageArray.map((imgUrl, index) => `
-                    <div class="thumbnail-option ${index === 0 ? 'selected' : ''}" 
-                         onclick="selectThumbnail('${imgUrl.replace(/'/g, "\\'")}', this)">
-                        <img src="${imgUrl}" alt="Thumbnail ${index + 1}" 
-                             onerror="this.parentElement.style.display='none'"
-                             loading="lazy">
-                    </div>
-                `).join('');
-
-                // 첫 번째 이미지를 기본 선택
-                document.getElementById('assetImage').value = imageArray[0];
-                updateImagePreview();
-
-                showToast(`${imageArray.length}개의 이미지를 찾았습니다`, 'success');
-
-            } catch (error) {
-                console.error('썸네일 추출 실패:', error);
-                loadingEl.style.display = 'none';
-                showToast('이미지를 찾는데 실패했습니다. 이미지를 직접 입력해주세요.', 'error');
             }
+            
+            // 모든 프록시가 실패한 경우
+            console.error('모든 프록시로 썸네일 추출 실패');
+            loadingEl.style.display = 'none';
+            showToast('이미지를 찾는데 실패했습니다. 프록시 서버 문제일 수 있습니다. 이미지를 직접 입력해주세요.', 'error');
         }
 
         // 썸네일 선택
@@ -3670,14 +3731,26 @@
             const progressDiv = document.getElementById('bulkProgress');
             const progressBar = document.getElementById('bulkProgressBar');
             const progressText = document.getElementById('bulkProgressText');
+            const estimatedTimeText = document.getElementById('bulkEstimatedTime');
             progressDiv.style.display = 'block';
+            
+            // 예상 시간 계산 (1개당 최대 3초로 여유있게 계산)
+            const estimatedSeconds = links.length * 3;
+            const estimatedMinutes = Math.floor(estimatedSeconds / 60);
+            const remainingSeconds = estimatedSeconds % 60;
+            const timeString = estimatedMinutes > 0 
+                ? `약 ${estimatedMinutes}분 ${remainingSeconds}초` 
+                : `약 ${remainingSeconds}초`;
+            estimatedTimeText.textContent = `⏱️ 최대 예상 소요 시간: ${timeString}`;
             
             // 버튼 비활성화
             const addButton = event.target;
             addButton.disabled = true;
             
             let successCount = 0;
+            let skippedCount = 0; // 삭제된 페이지 카운트
             const timestamp = Date.now();
+            const startTime = Date.now();
             
             // 각 링크를 순차적으로 처리
             for (let index = 0; index < links.length; index++) {
@@ -3687,6 +3760,20 @@
                 const progress = ((index + 1) / links.length) * 100;
                 progressBar.style.width = `${progress}%`;
                 progressText.textContent = `${index + 1} / ${links.length} 처리 중...`;
+                
+                // 남은 시간 계산 (실제 경과 시간 기반)
+                if (index > 0) {
+                    const elapsedTime = (Date.now() - startTime) / 1000; // 초
+                    const averageTimePerLink = elapsedTime / index;
+                    const remainingLinks = links.length - index;
+                    const estimatedRemainingSeconds = Math.ceil(averageTimePerLink * remainingLinks);
+                    const estMinutes = Math.floor(estimatedRemainingSeconds / 60);
+                    const estSeconds = estimatedRemainingSeconds % 60;
+                    const remainingTimeString = estMinutes > 0 
+                        ? `약 ${estMinutes}분 ${estSeconds}초 남음` 
+                        : `약 ${estSeconds}초 남음`;
+                    estimatedTimeText.textContent = `⏱️ ${remainingTimeString}`;
+                }
                 
                 // 링크가 BOOTH 링크인지 확인
                 if (!link.includes('booth.pm')) {
@@ -3700,8 +3787,28 @@
                 if (autoFetchImages) {
                     try {
                         const data = await fetchBoothData(link);
-                        if (data && data.title) title = data.title;
-                        if (data && data.image) image = data.image;
+                        
+                        // 삭제된 페이지인 경우 건너뛰기
+                        if (data && data.deleted) {
+                            console.log(`🚫 링크 ${index + 1}/${links.length} 건너뜀: 삭제된 페이지`);
+                            skippedCount++;
+                            continue;
+                        }
+                        
+                        // 접근 실패한 페이지도 건너뛰기
+                        if (data && data.failed) {
+                            console.log(`❌ 링크 ${index + 1}/${links.length} 건너뜀: 접근 실패 (CORS/네트워크 오류)`);
+                            skippedCount++;
+                            continue;
+                        }
+                        
+                        // 빈 문자열이 아닌 실제 제목이 있을 때만 적용
+                        if (data && data.title && data.title.trim()) {
+                            title = data.title.trim();
+                        }
+                        if (data && data.image && data.image.trim()) {
+                            image = data.image.trim();
+                        }
                     } catch (error) {
                         console.log(`링크 ${index + 1} 정보 가져오기 실패:`, error);
                         // 실패해도 계속 진행
@@ -3723,8 +3830,8 @@
                 assets.unshift(newAsset);
                 successCount++;
                 
-                // 각 요청 사이에 짧은 딜레이 (서버 부하 방지)
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // 각 요청 사이에 딜레이 (프록시 서버 부하 방지 & 안정성 향상)
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
             
             // 저장 및 렌더링
@@ -3733,9 +3840,18 @@
             renderAssets();
             updateStats();
             
+            // 완료 메시지 표시
+            progressText.textContent = `완료! ${successCount}개 추가됨`;
+            estimatedTimeText.textContent = '✓ 처리 완료';
+            progressBar.style.width = '100%';
+            
+            // 1초 후 진행바 숨기기
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             // 진행바 숨기기
             progressDiv.style.display = 'none';
             progressBar.style.width = '0%';
+            estimatedTimeText.textContent = '';
             
             // 버튼 활성화
             addButton.disabled = false;
@@ -3746,7 +3862,23 @@
             // 모달 닫기
             closeBulkAddModal();
             
-            showToast(`${successCount}개의 에셋이 추가되었습니다!`, 'success');
+            // 성공 메시지
+            if (successCount > 0) {
+                showToast(`${successCount}개의 에셋이 추가되었습니다!`, 'success');
+            }
+            
+            // 삭제된/접근 실패한 페이지가 있으면 별도 알림
+            if (skippedCount > 0) {
+                const delay = successCount > 0 ? 500 : 0;
+                setTimeout(() => {
+                    showToast(`⚠️ ${skippedCount}개의 페이지를 생략했습니다 (삭제된 상품 또는 접근 실패)`, 'info');
+                }, delay);
+            }
+            
+            // 아무것도 추가되지 않은 경우
+            if (successCount === 0 && skippedCount === 0) {
+                showToast('추가할 에셋이 없습니다', 'error');
+            }
         }
         
         // BOOTH 페이지에서 제목과 이미지 가져오기
@@ -3754,124 +3886,189 @@
             // 기본값
             const defaultResult = { title: '', image: '' };
             
-            try {
-                // CORS 프록시 사용
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'text/html',
-                    },
-                    timeout: 10000 // 10초 타임아웃
-                });
-                
-                if (!response.ok) {
-                    console.warn(`HTTP 오류: ${response.status}`);
-                    return defaultResult;
-                }
-                
-                const html = await response.text();
-                
-                if (!html || html.length < 100) {
-                    console.warn('빈 응답 또는 너무 짧은 응답');
-                    return defaultResult;
-                }
-                
-                // HTML 파싱
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // 제목 추출
-                let title = '';
-                const titleElement = doc.querySelector('h1.item-name') || 
-                                   doc.querySelector('.item-info h1') ||
-                                   doc.querySelector('meta[property="og:title"]') ||
-                                   doc.querySelector('title');
-                
-                if (titleElement) {
-                    if (titleElement.tagName === 'META') {
-                        title = titleElement.content || '';
-                    } else if (titleElement.tagName === 'TITLE') {
-                        title = titleElement.textContent.trim().split('|')[0].trim();
-                    } else {
-                        title = titleElement.textContent.trim();
-                    }
-                }
-                
-                // 이미지 추출 (첫 번째 이미지)
-                let image = '';
-                const images = new Set();
-                
-                // 1. Open Graph 이미지 (가장 신뢰도 높음)
-                const ogImage = doc.querySelector('meta[property="og:image"]');
-                if (ogImage && ogImage.content) {
-                    images.add(ogImage.content);
-                }
-                
-                // 2. JSON-LD에서 이미지 찾기
-                const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                scripts.forEach(script => {
-                    try {
-                        const data = JSON.parse(script.textContent);
-                        if (data.image) {
-                            if (Array.isArray(data.image)) {
-                                data.image.forEach(img => {
-                                    if (typeof img === 'string') {
-                                        images.add(img);
-                                    } else if (img && img.url) {
-                                        images.add(img.url);
-                                    }
-                                });
-                            } else if (typeof data.image === 'string') {
-                                images.add(data.image);
-                            } else if (data.image && data.image.url) {
-                                images.add(data.image.url);
-                            }
-                        }
-                    } catch (e) {
-                        // JSON 파싱 실패는 무시
-                    }
-                });
-                
-                // 3. Booth 특정 이미지 URL 패턴
-                const boothImagePattern = /https:\/\/booth\.pximg\.net\/[^\s"'<>]+?\.(?:jpg|jpeg|png|gif|webp)/gi;
-                const matches = html.match(boothImagePattern);
-                if (matches) {
-                    matches.forEach(url => {
-                        if (!url.includes('_icon') && !url.includes('/c/128x128/') && !url.includes('/c/300x300/')) {
-                            const cleanUrl = url.split('?')[0];
-                            images.add(cleanUrl);
+            // 여러 CORS 프록시 옵션 (fallback)
+            const proxyServers = [
+                `https://api.allorigins.win/raw?url=`,
+                `https://corsproxy.io/?`,
+                `https://api.codetabs.com/v1/proxy?quest=`
+            ];
+            
+            // 각 프록시를 순서대로 시도
+            for (let proxyIndex = 0; proxyIndex < proxyServers.length; proxyIndex++) {
+                try {
+                    const proxyUrl = proxyServers[proxyIndex] + encodeURIComponent(url);
+                    
+                    const response = await fetch(proxyUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'text/html',
                         }
                     });
-                }
-                
-                // 4. 일반 이미지 태그 (더 넓은 범위)
-                const imgTags = doc.querySelectorAll('img');
-                imgTags.forEach(img => {
-                    const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
-                    if (src && src.startsWith('http')) {
-                        // 아이콘, 아바타, 작은 이미지 제외
-                        if (!src.includes('icon') && !src.includes('avatar') && !src.includes('logo')) {
-                            images.add(src);
+                    
+                    if (!response.ok) {
+                        console.warn(`프록시 ${proxyIndex + 1} HTTP 오류: ${response.status}`);
+                        continue; // 다음 프록시 시도
+                    }
+                    
+                    const html = await response.text();
+                    
+                    if (!html || html.length < 100) {
+                        console.warn(`프록시 ${proxyIndex + 1} 응답이 너무 짧음`);
+                        continue; // 다음 프록시 시도
+                    }
+                    
+                    // HTML 파싱
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // 삭제된 페이지 감지 (404 페이지)
+                    // BOOTH의 404 페이지 여러 패턴 체크
+                    const notFoundText = doc.body.textContent || '';
+                    const hasNotFoundGirl = doc.querySelector('.not_found_girl');
+                    const dialogH1 = doc.querySelector('.dialog h1');
+                    
+                    const isDeleted = 
+                        notFoundText.includes('お探しの商品が見つかりませんでした') || 
+                        notFoundText.includes('商品が見つかりません') ||
+                        notFoundText.includes('誠に申し訳ございません') ||
+                        hasNotFoundGirl !== null ||
+                        (dialogH1 && dialogH1.textContent.includes('見つかりませんでした'));
+                    
+                    if (isDeleted) {
+                        console.log(`[fetchBoothData] ${url} - 🚫 삭제된 페이지 감지`);
+                        return { deleted: true, title: '', image: '' };
+                    }
+                    
+                    // 제목 추출 (다양한 선택자 시도)
+                    let title = '';
+                    
+                    // 1. Open Graph title (가장 신뢰도 높음)
+                    const ogTitle = doc.querySelector('meta[property="og:title"]');
+                    if (ogTitle && ogTitle.content) {
+                        title = ogTitle.content;
+                    }
+                    
+                    // 2. h1.item-name (Booth 특정)
+                    if (!title) {
+                        const h1ItemName = doc.querySelector('h1.item-name');
+                        if (h1ItemName) {
+                            title = h1ItemName.textContent.trim();
                         }
                     }
-                });
-                
-                // 첫 번째 이미지 사용
-                const imageArray = Array.from(images);
-                if (imageArray.length > 0) {
-                    image = imageArray[0];
+                    
+                    // 3. .item-info h1
+                    if (!title) {
+                        const itemInfoH1 = doc.querySelector('.item-info h1');
+                        if (itemInfoH1) {
+                            title = itemInfoH1.textContent.trim();
+                        }
+                    }
+                    
+                    // 4. title 태그 (마지막 수단)
+                    if (!title) {
+                        const titleTag = doc.querySelector('title');
+                        if (titleTag) {
+                            title = titleTag.textContent.trim().split('|')[0].trim();
+                        }
+                    }
+                    
+                    // 이미지 추출 - extractThumbnails와 완전히 동일한 로직
+                    let image = '';
+                    const images = new Set();
+                    
+                    // 1. JSON-LD Schema.org 데이터에서 이미지 추출 (가장 높은 품질)
+                    const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    jsonLdScripts.forEach(script => {
+                        try {
+                            const data = JSON.parse(script.textContent);
+                            // Product 타입의 image 필드
+                            if (data.image) {
+                                if (typeof data.image === 'string') {
+                                    images.add(data.image);
+                                } else if (Array.isArray(data.image)) {
+                                    data.image.forEach(img => {
+                                        if (typeof img === 'string') {
+                                            images.add(img);
+                                        } else if (img && img.url) {
+                                            images.add(img.url);
+                                        }
+                                    });
+                                } else if (data.image && data.image.url) {
+                                    images.add(data.image.url);
+                                }
+                            }
+                        } catch (e) {
+                            // JSON 파싱 실패 시 무시
+                        }
+                    });
+                    
+                    // 2. Open Graph 이미지
+                    const ogImage = doc.querySelector('meta[property="og:image"]');
+                    if (ogImage && ogImage.content) {
+                        images.add(ogImage.content);
+                    }
+
+                    // 3. Twitter 카드 이미지
+                    const twitterImage = doc.querySelector('meta[name="twitter:image"]');
+                    if (twitterImage && twitterImage.content) {
+                        images.add(twitterImage.content);
+                    }
+
+                    // 4. Booth 특정 이미지 URL 패턴 찾기 (정규식)
+                    const boothImagePattern = /https:\/\/booth\.pximg\.net\/[^\s"'<>]+?\.(?:jpg|jpeg|png|gif|webp)/gi;
+                    const matches = html.match(boothImagePattern);
+                    if (matches) {
+                        matches.forEach(url => {
+                            // 작은 썸네일이나 아이콘 제외
+                            if (!url.includes('_icon') && !url.includes('/c/128x128/') && !url.includes('/c/300x300/')) {
+                                // URL에서 쿼리 파라미터 제거
+                                const cleanUrl = url.split('?')[0];
+                                images.add(cleanUrl);
+                            }
+                        });
+                    }
+
+                    // 5. 모든 이미지 태그에서 추출
+                    const imgTags = doc.querySelectorAll('img');
+                    imgTags.forEach(img => {
+                        const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+                        if (src && src.startsWith('http')) {
+                            // 아이콘, 아바타, 작은 이미지 제외
+                            if (!src.includes('icon') && !src.includes('avatar') && !src.includes('logo')) {
+                                images.add(src);
+                            }
+                        }
+                    });
+                    
+                    // 첫 번째 이미지 사용
+                    const imageArray = Array.from(images);
+                    if (imageArray.length > 0) {
+                        image = imageArray[0];
+                    }
+                    
+                    // 디버깅용 상세 로그
+                    const titlePreview = title ? (title.length > 30 ? title.substring(0, 30) + '...' : title) : '(없음)';
+                    const imageStatus = image ? '✓' : '✗';
+                    console.log(`[fetchBoothData] ${url}\n  제목: ${title ? '✓' : '✗'} "${titlePreview}"\n  이미지: ${imageStatus} (프록시 ${proxyIndex + 1})`);
+                    
+                    return { 
+                        title: title || '', 
+                        image: image || '' 
+                    };
+                    
+                } catch (error) {
+                    console.warn(`프록시 ${proxyIndex + 1} 실패:`, error.message);
+                    // 다음 프록시로 계속 시도
+                    if (proxyIndex === proxyServers.length - 1) {
+                        // 마지막 프록시도 실패하면 에러 로그
+                        console.error('모든 프록시 실패:', url, error);
+                    }
                 }
-                
-                return { 
-                    title: title || '', 
-                    image: image || '' 
-                };
-                
-            } catch (error) {
-                console.error('데이터 가져오기 실패:', url, error);
-                return defaultResult; // 에러 시에도 빈 객체 반환
             }
+            
+            // 모든 프록시가 실패한 경우 - 접근 실패로 표시
+            console.error(`[fetchBoothData] ${url} - 모든 프록시 실패 (접근 불가)`);
+            return { title: '', image: '', failed: true };
         }
 
         // 페이지 로드 시 초기화
