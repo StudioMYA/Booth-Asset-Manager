@@ -649,6 +649,23 @@
             border-color: var(--border-hover);
         }
 
+        .asset-card.selected {
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(254, 180, 206, 0.3);
+        }
+
+        .asset-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            z-index: 10;
+            accent-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
         [data-theme="dark"] .asset-card {
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
         }
@@ -1379,7 +1396,6 @@
         /* Toast 알림 */
         .toast {
             position: fixed;
-            bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: var(--card-bg);
@@ -1395,6 +1411,7 @@
             gap: 12px;
             border: 2px solid var(--border-color);
             min-width: 300px;
+            margin-bottom: 10px;
         }
 
         .toast.show {
@@ -1700,13 +1717,257 @@
                 font-size: 20px;
             }
         }
+    
+        /* ==================== v1.1 추가 스타일 ==================== */
+        
+        /* 체크박스 */
+        .asset-checkbox-container {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 10;
+        }
+        
+        .asset-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+        
+        /* 일괄 작업 바 */
+        .bulk-action-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            margin: 20px 30px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bulk-action-bar.active {
+            display: flex;
+        }
+        
+        .bulk-action-bar .selected-count {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-right: auto;
+        }
+        
+        .bulk-action-btn {
+            background: var(--primary-color);
+            color: var(--button-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .bulk-action-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+        
+        .bulk-action-btn.cancel {
+            background: var(--text-muted);
+        }
+        
+        /* 페이지네이션 */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .pagination-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: var(--button-text);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding: 0 12px;
+        }
+        
+        /* 뷰 모드 토글 */
+        .view-mode-toggle {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .view-mode-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .view-mode-btn.active {
+            background: var(--primary-color);
+            color: var(--button-text);
+        }
+        
+        /* 대량등록 결과 모달 */
+        .bulk-result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+        }
+        
+        .bulk-result-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-color);
+            border-radius: var(--radius-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .bulk-result-header {
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .bulk-result-header h2 {
+            font-size: 24px;
+            color: var(--text-color);
+            margin: 0;
+        }
+        
+        .bulk-result-body {
+            padding: 24px 30px;
+        }
+        
+        .bulk-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .summary-card {
+            background: var(--accent-bg);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .summary-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .summary-card.success .number { color: var(--success); }
+        .summary-card.duplicate .number { color: var(--warning); }
+        .summary-card.failed .number { color: var(--destructive); }
+        
+        .summary-card .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .bulk-details {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .bulk-detail-item {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .bulk-detail-item.success { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .bulk-detail-item.duplicate { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .bulk-detail-item.failed { background: rgba(239, 68, 68, 0.1); color: var(--destructive); }
+        
+        .bulk-detail-item .icon { font-size: 18px; }
+        .bulk-detail-item .url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .bulk-result-footer {
+            padding: 20px 30px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* 푸터 이미지 */
+        .footer-image-link {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .footer-image-link img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            transition: transform 0.3s;
+        }
+        
+        .footer-image-link:hover img {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <a href="https://buymeacoffee.com/studio_mya" class="donate-btn" target="_blank" rel="noopener noreferrer">
-                ☕ 개발자에게 후원하기
+                ☕ 커피 지원하기
             </a>
             <button class="theme-toggle" onclick="toggleDarkMode()" id="themeToggleBtn">🌙 다크모드</button>
             <button class="settings-btn" onclick="openSettingsModal()">⚙️ 설정</button>
@@ -1766,6 +2027,7 @@
                 <div class="filter-header">
                     <h3>🔍 필터 & 검색</h3>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <!-- 정렬 -->
                         <select id="sortSelect" onchange="applySorting()" style="padding: 6px 12px; border-radius: 6px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-size: 13px;">
                             <option value="newest">최신순</option>
                             <option value="oldest">오래된순</option>
@@ -1774,19 +2036,49 @@
                             <option value="favorite">즐겨찾기</option>
                         </select>
                         
+                        <!-- 카드 크기 -->
                         <div style="display: flex; gap: 5px; border: 2px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-color);">
                             <button class="btn btn-small" id="sizeSmallBtn" onclick="setCardSize('small')" title="작게">S</button>
                             <button class="btn btn-small btn-primary" id="sizeMediumBtn" onclick="setCardSize('medium')" title="중간">M</button>
                             <button class="btn btn-small" id="sizeLargeBtn" onclick="setCardSize('large')" title="크게">L</button>
                         </div>
                         
-                        <div class="view-toggle">
+                        <!-- 뷰 모드 -->
+                        <div style="display: flex; gap: 5px; border: 2px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-color);">
                             <button class="btn btn-small btn-primary" id="gridViewBtn" onclick="setViewMode('grid')">
                                 그리드
                             </button>
-                            <button class="btn btn-small btn-secondary" id="listViewBtn" onclick="setViewMode('list')">
+                            <button class="btn btn-small" id="listViewBtn" onclick="setViewMode('list')">
                                 리스트
                             </button>
+                        </div>
+                        
+                        <!-- 페이지네이션 모드 -->
+                        <div style="display: flex; gap: 5px; border: 2px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-color);">
+                            <button class="btn btn-small btn-primary" id="scrollModeBtn" onclick="switchViewMode('scroll')">
+                                스크롤
+                            </button>
+                            <button class="btn btn-small" id="pageModeBtn" onclick="switchViewMode('page')">
+                                페이지
+                            </button>
+                        </div>
+                        
+                        <!-- 페이지당 항목 수 (페이지 모드에서만 표시) -->
+                        <div id="itemsPerPageBox" style="display: none; gap: 5px; border: 2px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-color);">
+                            <button class="btn btn-small btn-primary" id="items12Btn" onclick="changeItemsPerPage(12)">12개</button>
+                            <button class="btn btn-small" id="items24Btn" onclick="changeItemsPerPage(24)">24개</button>
+                            <button class="btn btn-small" id="items36Btn" onclick="changeItemsPerPage(36)">36개</button>
+                            <button class="btn btn-small" id="items48Btn" onclick="changeItemsPerPage(48)">48개</button>
+                            <button class="btn btn-small" id="items60Btn" onclick="changeItemsPerPage(60)">60개</button>
+                        </div>
+                        
+                        <!-- 페이지 네비게이션 (페이지 모드에서만 표시) -->
+                        <div id="paginationNavCompact" style="display: none; gap: 5px; border: 2px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-color); align-items: center;">
+                            <button id="firstPageBtn" class="btn btn-small" onclick="goToFirstPage()" title="처음">⏮️</button>
+                            <button id="prevPageBtn" class="btn btn-small" onclick="previousPage()" title="이전">◀️</button>
+                            <span id="paginationInfo" style="padding: 4px 8px; font-size: 12px; font-weight: 600; color: var(--text-color); white-space: nowrap;">1/1</span>
+                            <button id="nextPageBtn" class="btn btn-small" onclick="nextPage()" title="다음">▶️</button>
+                            <button id="lastPageBtn" class="btn btn-small" onclick="goToLastPage()" title="마지막">⏭️</button>
                         </div>
                     </div>
                 </div>
@@ -1830,11 +2122,52 @@
                 <button class="btn btn-secondary btn-small" onclick="clearFilters()" style="margin-top: 10px;">
                     필터 초기화
                 </button>
+                <button class="btn btn-primary btn-small" onclick="toggleFavoriteFilter()" id="favoriteFilterBtn" style="margin-top: 10px;">
+                    ⭐ 즐겨찾기만 보기
+                </button>
+                
+                <!-- 일괄 작업 버튼들 -->
+                <div style="margin-top: 20px; padding: 15px; background: var(--filter-bg); border-radius: var(--radius-md); border: 2px solid var(--border-color);">
+                    <h4 style="margin: 0 0 12px 0; color: var(--text-color); font-size: 14px; font-weight: 600;">📋 일괄 작업</h4>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-small btn-primary" onclick="selectAllFiltered()" title="현재 필터링된 모든 항목 선택">
+                            ☑️ 전체 선택
+                        </button>
+                        <button class="btn btn-small btn-secondary" onclick="deselectAll()" title="선택 해제">
+                            ◻️ 선택 해제
+                        </button>
+                        <button class="btn btn-small" onclick="openBulkEditModal()" id="bulkEditBtn" disabled title="항목을 선택하세요">
+                            ✏️ 일괄 수정
+                        </button>
+                        <button class="btn btn-small btn-delete" onclick="bulkDeleteAssets()" id="bulkDeleteBtn" disabled title="항목을 선택하세요">
+                            🗑️ 일괄 삭제
+                        </button>
+                    </div>
+                    <div id="selectedCount" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                        선택된 항목: <span id="selectedCountNum">0</span>개
+                    </div>
+                </div>
+                
+                <!-- 태그 관리 버튼 -->
+                <div style="margin-top: 15px; padding: 15px; background: var(--filter-bg); border-radius: var(--radius-md); border: 2px solid var(--border-color);">
+                    <h4 style="margin: 0 0 12px 0; color: var(--text-color); font-size: 14px; font-weight: 600;">🏷️ 태그 관리</h4>
+                    <button class="btn btn-small btn-warning" onclick="deleteEmptyTags()" title="에셋이 0개인 태그 삭제">
+                        🗑️ 빈 태그 삭제
+                    </button>
+                </div>
             </div>
 
-            <div id="assetsContainer" class="assets-grid"></div>
+            <section id="assetGrid">
+                <div id="assetsContainer" class="assets-grid"></div>
+            </section>
 
             </div>
+
+        <div class="footer-image-link">
+            <a href="https://honeycorn-s-notes.tistory.com/38" target="_blank" rel="noopener noreferrer">
+                <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2Fbb7JVs%2FdJMcadAjF7M%2FAAAAAAAAAAAAAAAAAAAAAHL_3T4f0AyE2_FpPyCaxh7zNOkKFU_8buBqEXcycDu4%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1764514799%26allow_ip%3D%26allow_referer%3D%26signature%3D0ylpEJOwrKrQiWgx8JNDl8VIXEg%253D" alt="Honeycorn Notes">
+            </a>
+        </div>
 
         <div class="footer-credit">
             © 2025 MYA STUDIO. All rights reserved.
@@ -2150,6 +2483,14 @@
                 </p>
             </div>
 
+            <div class="input-group">
+                <label>일괄 태그 (선택사항)</label>
+                <input type="text" id="bulkTags" placeholder="예: 마누카, 시나노, 아이리 (쉼표로 구분)">
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    🏷️ 입력한 태그가 추가되는 모든 에셋에 동일하게 적용됩니다.
+                </p>
+            </div>
+
             <div id="bulkProgress" style="display: none; margin-top: 15px; padding: 15px; background: var(--filter-bg); border-radius: 8px; border: 2px solid var(--border-color);">
                 <p style="font-size: 13px; color: var(--text-color); margin-bottom: 8px;">
                     <strong>처리 중...</strong>
@@ -2172,15 +2513,94 @@
         </div>
     </div>
 
+
+    <!-- 대량등록 결과 모달 -->
+    <div id="bulkResultModal" class="bulk-result-modal">
+        <div class="bulk-result-content">
+            <div class="bulk-result-header">
+                <h2>📦 대량 등록 완료</h2>
+            </div>
+            <div class="bulk-result-body">
+                <div class="bulk-summary">
+                    <div class="summary-card success">
+                        <div class="number" id="successCount">0</div>
+                        <div class="label">성공</div>
+                    </div>
+                    <div class="summary-card duplicate">
+                        <div class="number" id="duplicateCount">0</div>
+                        <div class="label">중복</div>
+                    </div>
+                    <div class="summary-card failed">
+                        <div class="number" id="failedCount">0</div>
+                        <div class="label">실패</div>
+                    </div>
+                </div>
+                <div class="bulk-details" id="bulkDetails"></div>
+            </div>
+            <div class="bulk-result-footer">
+                <button class="btn-primary" onclick="closeBulkResultModal()">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 일괄 수정 모달 -->
+    <div id="bulkEditModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3>✏️ 일괄 수정</h3>
+            
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                선택한 <strong id="bulkEditCount">0</strong>개 항목의 태그와 메모를 일괄 수정합니다. (덮어쓰기 방식)
+            </p>
+
+            <div class="input-group">
+                <label>태그 (쉼표로 구분)</label>
+                <input type="text" id="bulkEditTags" placeholder="예: 마누카, 시나노, 아이리">
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    💡 입력한 태그로 기존 태그가 <strong>완전히 대체</strong>됩니다. 비워두면 태그가 수정되지 않습니다.
+                </p>
+            </div>
+
+            <div class="input-group">
+                <label>메모</label>
+                <textarea id="bulkEditMemo" placeholder="일괄 적용할 메모를 입력하세요..." style="min-height: 100px; resize: vertical;"></textarea>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                    💡 입력한 메모로 기존 메모가 <strong>완전히 대체</strong>됩니다. 비워두면 메모가 수정되지 않습니다.
+                </p>
+            </div>
+
+            <div style="background: var(--filter-bg); padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 3px solid var(--warning);">
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                    ⚠️ <strong>주의:</strong> 이 작업은 되돌릴 수 없습니다. 태그나 메모를 입력하면 선택한 모든 항목의 해당 필드가 <strong>덮어쓰기</strong>됩니다.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="processBulkEdit()">
+                    ✏️ 일괄 수정
+                </button>
+                <button class="btn btn-secondary" onclick="closeBulkEditModal()">
+                    취소
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 데이터 저장소
         let assets = [];
+        let selectedAssets = new Set();
+        let paginationMode = 'scroll';
+        let currentPage = 1;
+        let itemsPerPage = 12;
+        let totalPages = 1;
         let categories = ['헤어', '의상', '캐릭터'];
         let allTags = [];
         let selectedCategories = [];
         let selectedTags = [];
         let searchQuery = '';
         let viewMode = 'grid';
+        let displayMode = 'grid';
+        let favoriteFilter = false;
         let cardSize = 'medium';
         let sortMode = 'newest';
         let tagFilterMode = 'AND'; // ✨ [UX 개선] 'AND' 또는 'OR'
@@ -2210,6 +2630,267 @@
         };
 
         // 초기화
+        // ==================== v1.1 기능 ====================
+        
+        function toggleAssetSelection(assetId) {
+            if (selectedAssets.has(assetId)) {
+                selectedAssets.delete(assetId);
+            } else {
+                selectedAssets.add(assetId);
+            }
+            updateBulkActionBar();
+        }
+        
+        function updateBulkActionBar() {
+            const bar = document.getElementById('bulkActionBar');
+            const count = document.getElementById('selectedCount');
+            if (selectedAssets.size > 0) {
+                bar.classList.add('active');
+                count.textContent = `${selectedAssets.size}개 선택됨`;
+            } else {
+                bar.classList.remove('active');
+            }
+        }
+        
+        function clearSelection() {
+            selectedAssets.clear();
+            updateBulkActionBar();
+            renderAssets();
+        }
+        
+        function selectAllFiltered() {
+            const filtered = getFilteredAssets();
+            filtered.forEach(asset => selectedAssets.add(asset.id));
+            updateBulkActionBar();
+            renderAssets();
+            showToast(`${filtered.length}개 에셋이 선택되었습니다`, 'success');
+        }
+        
+        function bulkEditTags() {
+            if (selectedAssets.size === 0) return;
+            const newTags = prompt(`선택된 ${selectedAssets.size}개 에셋에 추가할 태그를 입력하세요\n(쉼표로 구분, 기존 태그에 추가됩니다)`);
+            if (newTags === null) return;
+            const tagsArray = newTags.split(',').map(t => t.trim()).filter(t => t);
+            if (tagsArray.length === 0) {
+                showToast('태그를 입력해주세요', 'warning');
+                return;
+            }
+            let count = 0;
+            selectedAssets.forEach(assetId => {
+                const asset = assets.find(a => a.id === assetId);
+                if (asset) {
+                    tagsArray.forEach(tag => {
+                        if (!asset.tags.includes(tag)) {
+                            asset.tags.push(tag);
+                            if (!allTags.includes(tag)) allTags.push(tag);
+                        }
+                    });
+                    count++;
+                }
+            });
+            saveToLocalStorage();
+            clearSelection();
+            renderAssets();
+            updateTagsDropdown();
+            showToast(`${count}개 에셋에 태그가 추가되었습니다`, 'success');
+        }
+        
+        function bulkEditMemo() {
+            if (selectedAssets.size === 0) return;
+            const newMemo = prompt(`선택된 ${selectedAssets.size}개 에셋에 추가할 메모를 입력하세요\n(기존 메모는 유지되고 새 메모가 추가됩니다)`);
+            if (newMemo === null || newMemo.trim() === '') return;
+            let count = 0;
+            selectedAssets.forEach(assetId => {
+                const asset = assets.find(a => a.id === assetId);
+                if (asset) {
+                    asset.memo = asset.memo ? asset.memo + ' | ' + newMemo.trim() : newMemo.trim();
+                    count++;
+                }
+            });
+            saveToLocalStorage();
+            clearSelection();
+            renderAssets();
+            showToast(`${count}개 에셋에 메모가 추가되었습니다`, 'success');
+        }
+        
+        function setPaginationMode(mode) {
+            paginationMode = mode;
+            currentPage = 1;
+            document.getElementById('scrollModeBtn').classList.toggle('active', mode === 'scroll');
+            document.getElementById('pageModeBtn').classList.toggle('active', mode === 'page');
+            document.getElementById('paginationControls').style.display = mode === 'page' ? 'flex' : 'none';
+            renderAssets();
+        }
+        
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderAssets();
+            document.getElementById('assetGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function updatePaginationUI() {
+            if (paginationMode !== 'page') return;
+            const firstBtn = document.getElementById('firstPageBtn');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const lastBtn = document.getElementById('lastPageBtn');
+            const info = document.getElementById('paginationInfo');
+            if (firstBtn) firstBtn.disabled = currentPage === 1;
+            if (prevBtn) prevBtn.disabled = currentPage === 1;
+            if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+            if (lastBtn) lastBtn.disabled = currentPage === totalPages;
+            if (info) info.textContent = `${currentPage} / ${totalPages}`;
+        }
+        
+        function showBulkResultModal(results) {
+            const modal = document.getElementById('bulkResultModal');
+            document.getElementById('successCount').textContent = results.success;
+            document.getElementById('duplicateCount').textContent = results.duplicate;
+            document.getElementById('failedCount').textContent = results.failed;
+            let html = '';
+            if (results.details && results.details.length > 0) {
+                results.details.forEach(item => {
+                    const cls = item.status === 'duplicate' ? 'duplicate' : item.status === 'failed' ? 'failed' : 'success';
+                    const icon = item.status === 'duplicate' ? '⚠' : item.status === 'failed' ? '✗' : '✓';
+                    const text = item.status === 'duplicate' ? '중복' : item.status === 'failed' ? '실패' : '등록됨';
+                    const reason = item.reason ? `<br><span style="font-size: 12px; color: var(--text-secondary);">사유: ${item.reason}</span>` : '';
+                    html += `<div class="bulk-detail-item ${cls}">
+                        <span class="icon">${icon}</span>
+                        <span class="url" title="${item.url}">${item.url}</span>
+                        <span style="font-weight:600;">${text}${reason}</span>
+                    </div>`;
+                });
+            }
+            document.getElementById('bulkDetails').innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        function closeBulkResultModal() {
+            document.getElementById('bulkResultModal').style.display = 'none';
+        }
+        
+        function deleteEmptyTags() {
+            const usedTags = new Set();
+            assets.forEach(asset => asset.tags.forEach(tag => usedTags.add(tag)));
+            const emptyTags = allTags.filter(tag => !usedTags.has(tag));
+            if (emptyTags.length === 0) {
+                showToast('삭제할 빈 태그가 없습니다', 'info');
+                return;
+            }
+            if (confirm(`${emptyTags.length}개의 빈 태그를 삭제하시겠습니까?\n\n삭제될 태그:\n${emptyTags.join(', ')}`)) {
+                allTags = allTags.filter(tag => usedTags.has(tag));
+                saveToLocalStorage();
+                updateTagsDropdown();
+                showToast(`${emptyTags.length}개의 빈 태그가 삭제되었습니다`, 'success');
+            }
+        }
+
+        // ==================== 페이지네이션 함수 ====================
+        
+        function switchViewMode(mode) {
+            paginationMode = mode;
+            currentPage = 1;
+            localStorage.setItem('boothPaginationMode', mode);
+            
+            // 버튼 상태 업데이트
+            const scrollBtn = document.getElementById('scrollModeBtn');
+            const pageBtn = document.getElementById('pageModeBtn');
+            
+            if (mode === 'scroll') {
+                scrollBtn.classList.add('btn-primary');
+                scrollBtn.classList.remove('btn-secondary');
+                pageBtn.classList.remove('btn-primary');
+                pageBtn.classList.add('btn-secondary');
+            } else {
+                scrollBtn.classList.remove('btn-primary');
+                scrollBtn.classList.add('btn-secondary');
+                pageBtn.classList.add('btn-primary');
+                pageBtn.classList.remove('btn-secondary');
+            }
+            
+            // UI 표시/숨김
+            document.getElementById('itemsPerPageBox').style.display = mode === 'page' ? 'flex' : 'none';
+            document.getElementById('paginationNavCompact').style.display = mode === 'page' ? 'flex' : 'none';
+            
+            renderAssets();
+            
+            // 스크롤을 에셋 그리드 상단으로 이동
+            if (mode === 'page') {
+                document.getElementById('assetGrid').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function changeItemsPerPage(count) {
+            itemsPerPage = count;
+            currentPage = 1;
+            localStorage.setItem('boothItemsPerPage', itemsPerPage);
+            
+            // 버튼 상태 업데이트
+            ['items12Btn', 'items24Btn', 'items36Btn', 'items48Btn', 'items60Btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                const btnCount = parseInt(id.match(/\d+/)[0]);
+                if (btnCount === itemsPerPage) {
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-secondary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
+            });
+            
+            renderAssets();
+        }
+        
+        function updatePaginationUI() {
+            const firstBtn = document.getElementById('firstPageBtn');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const lastBtn = document.getElementById('lastPageBtn');
+            const info = document.getElementById('paginationInfo');
+            
+            firstBtn.disabled = currentPage === 1;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            lastBtn.disabled = currentPage === totalPages;
+            
+            info.textContent = `${currentPage} / ${totalPages}`;
+        }
+        
+        function goToFirstPage() {
+            currentPage = 1;
+            renderAssets();
+            scrollToTop();
+        }
+        
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderAssets();
+                scrollToTop();
+            }
+        }
+        
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderAssets();
+                scrollToTop();
+            }
+        }
+        
+        function goToLastPage() {
+            currentPage = totalPages;
+            renderAssets();
+            scrollToTop();
+        }
+        
+        function scrollToTop() {
+            document.getElementById('assetGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // ==================== 초기화 ====================
+
         function init() {
             loadFromLocalStorage();
             applyTheme();
@@ -2218,6 +2899,7 @@
             renderFilters();
             renderAssets();
             updateStats();
+            updateSelectionUI();
             
             // UI 상태 복원
             document.getElementById('sortSelect').value = sortMode;
@@ -2248,6 +2930,8 @@
             const savedTextDarkColor = localStorage.getItem('boothTextDarkColor');
             const savedHeaderTextColor = localStorage.getItem('boothHeaderTextColor');
             const savedButtonTextColor = localStorage.getItem('boothButtonTextColor');
+            const savedPaginationMode = localStorage.getItem('boothPaginationMode');
+            const savedItemsPerPage = localStorage.getItem('boothItemsPerPage');
             
             if (savedAssets) assets = JSON.parse(savedAssets);
             if (savedCategories) categories = JSON.parse(savedCategories);
@@ -2274,6 +2958,46 @@
             if (savedTextDarkColor) textDarkColor = savedTextDarkColor;
             if (savedHeaderTextColor) headerTextColor = savedHeaderTextColor;
             if (savedButtonTextColor) buttonTextColor = savedButtonTextColor;
+            
+            // 페이지네이션 설정 복원
+            if (savedPaginationMode) {
+                paginationMode = savedPaginationMode;
+                const scrollBtn = document.getElementById('scrollModeBtn');
+                const pageBtn = document.getElementById('pageModeBtn');
+                
+                if (paginationMode === 'scroll') {
+                    scrollBtn.classList.add('btn-primary');
+                    scrollBtn.classList.remove('btn-secondary');
+                    pageBtn.classList.remove('btn-primary');
+                    pageBtn.classList.add('btn-secondary');
+                } else {
+                    scrollBtn.classList.remove('btn-primary');
+                    scrollBtn.classList.add('btn-secondary');
+                    pageBtn.classList.add('btn-primary');
+                    pageBtn.classList.remove('btn-secondary');
+                }
+                
+                document.getElementById('itemsPerPageBox').style.display = paginationMode === 'page' ? 'flex' : 'none';
+                document.getElementById('paginationNavCompact').style.display = paginationMode === 'page' ? 'flex' : 'none';
+            }
+            if (savedItemsPerPage) {
+                itemsPerPage = parseInt(savedItemsPerPage);
+                
+                // 버튼 상태 업데이트
+                ['items12Btn', 'items24Btn', 'items36Btn', 'items48Btn', 'items60Btn'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        const btnCount = parseInt(id.match(/\d+/)[0]);
+                        if (btnCount === itemsPerPage) {
+                            btn.classList.add('btn-primary');
+                            btn.classList.remove('btn-secondary');
+                        } else {
+                            btn.classList.remove('btn-primary');
+                            btn.classList.add('btn-secondary');
+                        }
+                    }
+                });
+            }
         }
 
         // 로컬 스토리지에 저장
@@ -2489,8 +3213,31 @@
             selectedCategories = [];
             selectedTags = [];
             searchQuery = '';
+            favoriteFilter = false;
             document.getElementById('searchBox').value = '';
+            const favoriteBtn = document.getElementById('favoriteFilterBtn');
+            if (favoriteBtn) {
+                favoriteBtn.classList.remove('btn-warning');
+                favoriteBtn.classList.add('btn-primary');
+                favoriteBtn.textContent = '⭐ 즐겨찾기만 보기';
+            }
             renderFilters();
+            renderAssets();
+        }
+
+        // 즐겨찾기 필터 토글
+        function toggleFavoriteFilter() {
+            favoriteFilter = !favoriteFilter;
+            const favoriteBtn = document.getElementById('favoriteFilterBtn');
+            if (favoriteFilter) {
+                favoriteBtn.classList.remove('btn-primary');
+                favoriteBtn.classList.add('btn-warning');
+                favoriteBtn.textContent = '⭐ 즐겨찾기 필터 ON';
+            } else {
+                favoriteBtn.classList.remove('btn-warning');
+                favoriteBtn.classList.add('btn-primary');
+                favoriteBtn.textContent = '⭐ 즐겨찾기만 보기';
+            }
             renderAssets();
         }
 
@@ -2516,15 +3263,36 @@
                     asset.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     asset.memo.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     asset.link.toLowerCase().includes(searchQuery.toLowerCase());
+                
+                // 즐겨찾기 필터
+                const matchesFavorite = !favoriteFilter || asset.favorite;
                     
-                return matchesCategory && matchesTags && matchesSearch;
+                return matchesCategory && matchesTags && matchesSearch && matchesFavorite;
             });
         }
 
         // 에셋 렌더링
         function renderAssets() {
             const container = document.getElementById('assetsContainer');
-            const filteredAssets = getSortedAssets(getFilteredAssets());
+            let filteredAssets = getSortedAssets(getFilteredAssets());
+            
+            // 페이지네이션 모드일 때 슬라이스
+            if (paginationMode === 'page') {
+                totalPages = Math.max(1, Math.ceil(filteredAssets.length / itemsPerPage));
+                
+                // 현재 페이지가 범위를 벗어나면 조정
+                if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                }
+                
+                // 현재 페이지에 해당하는 항목만 표시
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                filteredAssets = filteredAssets.slice(startIndex, endIndex);
+                
+                // 페이지네이션 UI 업데이트
+                updatePaginationUI();
+            }
             
             // ✨ [UX 개선] 빈 상태 메시지 개선
             if (filteredAssets.length === 0) {
@@ -2555,9 +3323,16 @@
                     const imageSrc = hasImage ? asset.imageUrl : 'https://placehold.co/600x400/e4e4e7/71717a?text=No+Image';
                     const cursorStyle = hasImage ? 'cursor: zoom-in;' : 'cursor: default;';
                     const imageClick = hasImage ? `onclick="openImageZoom('${asset.imageUrl.replace(/'/g, "\\'")}', '${asset.title.replace(/'/g, "\\'")}')"` : '';
+                    const isSelected = selectedAssets.has(asset.id);
+                    const selectedClass = isSelected ? 'selected' : '';
                     
                     return `
-                    <div class="asset-card">
+                    <div class="asset-card ${selectedClass}">
+                        <input type="checkbox" 
+                               class="asset-checkbox" 
+                               ${isSelected ? 'checked' : ''} 
+                               onchange="toggleAssetSelection(${asset.id})"
+                               onclick="event.stopPropagation()">
                         <button class="favorite-btn ${asset.favorite ? 'active' : ''}" onclick="toggleFavorite(${asset.id})" title="즐겨찾기">
                             ${asset.favorite ? '⭐' : '☆'}
                         </button>
@@ -2700,6 +3475,15 @@
                 return;
             }
             
+            // 중복 링크 체크 (수정 모드가 아닐 때만)
+            if (!editingAssetId) {
+                const duplicateAsset = assets.find(a => a.link === link);
+                if (duplicateAsset) {
+                    showToast('이미 등록된 링크입니다!', 'error');
+                    return;
+                }
+            }
+            
             const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
             
             // 새 태그를 전체 태그 목록에 추가
@@ -2799,7 +3583,7 @@
         // 데이터 내보내기 (모든 설정 포함)
         function exportData() {
             const data = {
-                version: '2.3',
+                version: '1.1',
                 assets,
                 categories,
                 allTags,
@@ -3249,6 +4033,177 @@
             renderAssets();
         }
 
+        // 에셋 선택 토글
+        function toggleAssetSelection(assetId) {
+            if (selectedAssets.has(assetId)) {
+                selectedAssets.delete(assetId);
+            } else {
+                selectedAssets.add(assetId);
+            }
+            updateSelectionUI();
+            renderAssets();
+        }
+
+        // 전체 선택 (필터링된 항목만)
+        function selectAllFiltered() {
+            const filteredAssets = getFilteredAssets();
+            filteredAssets.forEach(asset => {
+                selectedAssets.add(asset.id);
+            });
+            updateSelectionUI();
+            renderAssets();
+            showToast(`${filteredAssets.length}개 항목을 선택했습니다`, 'success');
+        }
+
+        // 선택 해제
+        function deselectAll() {
+            selectedAssets.clear();
+            updateSelectionUI();
+            renderAssets();
+            showToast('선택을 해제했습니다', 'info');
+        }
+
+        // 선택 UI 업데이트
+        function updateSelectionUI() {
+            const count = selectedAssets.size;
+            document.getElementById('selectedCountNum').textContent = count;
+            
+            const bulkEditBtn = document.getElementById('bulkEditBtn');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            
+            if (count > 0) {
+                bulkEditBtn.disabled = false;
+                bulkDeleteBtn.disabled = false;
+                bulkEditBtn.classList.add('btn-primary');
+                bulkEditBtn.classList.remove('btn-secondary');
+            } else {
+                bulkEditBtn.disabled = true;
+                bulkDeleteBtn.disabled = true;
+                bulkEditBtn.classList.remove('btn-primary');
+                bulkEditBtn.classList.add('btn-secondary');
+            }
+        }
+
+        // 일괄 수정 모달 열기
+        function openBulkEditModal() {
+            if (selectedAssets.size === 0) {
+                showToast('수정할 항목을 선택해주세요', 'error');
+                return;
+            }
+            
+            document.getElementById('bulkEditCount').textContent = selectedAssets.size;
+            document.getElementById('bulkEditTags').value = '';
+            document.getElementById('bulkEditMemo').value = '';
+            document.getElementById('bulkEditModal').classList.add('active');
+        }
+
+        // 일괄 수정 모달 닫기
+        function closeBulkEditModal() {
+            document.getElementById('bulkEditModal').classList.remove('active');
+        }
+
+        // 일괄 수정 처리
+        function processBulkEdit() {
+            const tagsInput = document.getElementById('bulkEditTags').value.trim();
+            const memo = document.getElementById('bulkEditMemo').value.trim();
+            
+            if (!tagsInput && !memo) {
+                showToast('태그나 메모 중 하나는 입력해야 합니다', 'error');
+                return;
+            }
+            
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : null;
+            let updatedCount = 0;
+            
+            assets = assets.map(asset => {
+                if (selectedAssets.has(asset.id)) {
+                    updatedCount++;
+                    const updated = { ...asset };
+                    
+                    // 태그 덮어쓰기
+                    if (tags !== null) {
+                        updated.tags = tags;
+                        // 새 태그를 전체 태그 목록에 추가
+                        tags.forEach(tag => {
+                            if (!allTags.includes(tag)) {
+                                allTags.push(tag);
+                            }
+                        });
+                    }
+                    
+                    // 메모 덮어쓰기
+                    if (memo) {
+                        updated.memo = memo;
+                    }
+                    
+                    return updated;
+                }
+                return asset;
+            });
+            
+            saveToLocalStorage();
+            renderFilters();
+            renderAssets();
+            closeBulkEditModal();
+            deselectAll();
+            showToast(`${updatedCount}개 항목이 수정되었습니다`, 'success');
+        }
+
+        // 일괄 삭제
+        function bulkDeleteAssets() {
+            if (selectedAssets.size === 0) {
+                showToast('삭제할 항목을 선택해주세요', 'error');
+                return;
+            }
+            
+            const count = selectedAssets.size;
+            if (!confirm(`선택한 ${count}개 항목을 삭제하시겠습니까?`)) {
+                return;
+            }
+            
+            assets = assets.filter(asset => !selectedAssets.has(asset.id));
+            selectedAssets.clear();
+            
+            saveToLocalStorage();
+            renderFilters();
+            renderAssets();
+            updateSelectionUI();
+            showToast(`${count}개 항목이 삭제되었습니다`, 'success');
+        }
+
+        // 빈 태그 삭제 (에셋이 0개인 태그)
+        function deleteEmptyTags() {
+            const tagsToDelete = [];
+            
+            // 에셋이 없는 태그 찾기
+            allTags.forEach(tag => {
+                const count = assets.filter(a => a.tags.includes(tag)).length;
+                if (count === 0) {
+                    tagsToDelete.push(tag);
+                }
+            });
+            
+            if (tagsToDelete.length === 0) {
+                showToast('삭제할 빈 태그가 없습니다', 'info');
+                return;
+            }
+            
+            if (!confirm(`${tagsToDelete.length}개의 빈 태그를 삭제하시겠습니까?\n\n삭제될 태그: ${tagsToDelete.join(', ')}`)) {
+                return;
+            }
+            
+            // 태그 목록에서 제거
+            allTags = allTags.filter(tag => !tagsToDelete.includes(tag));
+            
+            // 선택된 태그 필터에서도 제거
+            selectedTags = selectedTags.filter(tag => !tagsToDelete.includes(tag));
+            
+            saveToLocalStorage();
+            renderFilters();
+            renderAssets();
+            showToast(`${tagsToDelete.length}개의 빈 태그가 삭제되었습니다`, 'success');
+        }
+
         // 정렬된 에셋 가져오기
         function getSortedAssets(assetList) {
             const sorted = [...assetList];
@@ -3565,14 +4520,32 @@
             
             container.appendChild(toast);
             
+            // 스택 위치 계산
+            updateToastPositions();
+            
             // 애니메이션 트리거
             setTimeout(() => toast.classList.add('show'), 10);
             
-            // 3초 후 제거
+            // 5초 후 제거 (길어진 시간)
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                setTimeout(() => {
+                    toast.remove();
+                    updateToastPositions();
+                }, 300);
+            }, 5000);
+        }
+
+        // Toast 위치 업데이트 (스택 방식)
+        function updateToastPositions() {
+            const container = document.getElementById('toastContainer');
+            const toasts = container.querySelectorAll('.toast');
+            let bottomPosition = 30;
+            
+            toasts.forEach((toast, index) => {
+                toast.style.bottom = `${bottomPosition}px`;
+                bottomPosition += toast.offsetHeight + 10; // 10px gap
+            });
         }
 
         // Zoom 기능
@@ -3628,7 +4601,7 @@
             }
             
             const data = {
-                version: '2.3',
+                version: '1.1',
                 assets,
                 categories,
                 allTags,
@@ -3688,23 +4661,27 @@
         }
 
         // 대량추가 모달 닫기
-        function closeBulkAddModal() {
-            // 현재 입력된 데이터를 임시 저장
-            tempModalData.bulk = {
-                category: document.getElementById('bulkCategory').value,
-                links: document.getElementById('bulkLinks').value,
-                memo: document.getElementById('bulkMemo').value,
-                autoFetch: document.getElementById('bulkAutoFetchImages').checked
-            };
+        function closeBulkAddModal(skipSave = false) {
+            // 성공 후가 아니면 임시 저장
+            if (!skipSave) {
+                tempModalData.bulk = {
+                    category: document.getElementById('bulkCategory').value,
+                    links: document.getElementById('bulkLinks').value,
+                    memo: document.getElementById('bulkMemo').value,
+                    autoFetch: document.getElementById('bulkAutoFetchImages').checked
+                };
+            }
             
             document.getElementById('bulkAddModal').classList.remove('active');
         }
 
         // 대량추가 처리
         async function processBulkAdd() {
+            const bulkResults = [];
             const category = document.getElementById('bulkCategory').value;
             const linksText = document.getElementById('bulkLinks').value.trim();
             const bulkMemo = document.getElementById('bulkMemo').value.trim();
+            const bulkTags = document.getElementById('bulkTags').value.trim();
             const autoFetchImages = document.getElementById('bulkAutoFetchImages').checked;
             
             if (!category) {
@@ -3748,6 +4725,8 @@
             addButton.disabled = true;
             
             let successCount = 0;
+            let duplicateCount = 0;
+            let failedCount = 0;
             let skippedCount = 0; // 삭제된 페이지 카운트
             const timestamp = Date.now();
             const startTime = Date.now();
@@ -3791,14 +4770,16 @@
                         // 삭제된 페이지인 경우 건너뛰기
                         if (data && data.deleted) {
                             console.log(`🚫 링크 ${index + 1}/${links.length} 건너뜀: 삭제된 페이지`);
-                            skippedCount++;
+                            failedCount++;
+                            bulkResults.push({ url: link, status: "failed", reason: "삭제된 페이지" });
                             continue;
                         }
                         
                         // 접근 실패한 페이지도 건너뛰기
                         if (data && data.failed) {
                             console.log(`❌ 링크 ${index + 1}/${links.length} 건너뜀: 접근 실패 (CORS/네트워크 오류)`);
-                            skippedCount++;
+                            failedCount++;
+                            bulkResults.push({ url: link, status: "failed", reason: "접근 실패 (CORS/네트워크 오류)" });
                             continue;
                         }
                         
@@ -3811,9 +4792,30 @@
                         }
                     } catch (error) {
                         console.log(`링크 ${index + 1} 정보 가져오기 실패:`, error);
-                        // 실패해도 계속 진행
+                        failedCount++;
+                        bulkResults.push({ url: link, status: "failed", reason: error.message || "정보 가져오기 실패" });
+                        continue;
                     }
                 }
+                
+                // 중복 링크 체크
+                const isDuplicate = assets.find(a => a.link === link);
+                if (isDuplicate) {
+                    console.log(`⚠️ 링크 ${index + 1}/${links.length} 건너뜀: 이미 등록된 링크`);
+                    duplicateCount++;
+                    bulkResults.push({ url: link, status: "duplicate", reason: "이미 등록된 링크" });
+                    continue;
+                }
+                
+                // 일괄 태그 처리
+                const tags = bulkTags ? bulkTags.split(',').map(t => t.trim()).filter(t => t) : [];
+                
+                // 새 태그를 전체 태그 목록에 추가
+                tags.forEach(tag => {
+                    if (!allTags.includes(tag)) {
+                        allTags.push(tag);
+                    }
+                });
                 
                 const newAsset = {
                     id: Date.now() + index + Math.random(),
@@ -3821,7 +4823,7 @@
                     link,
                     imageUrl: image || '', // imageUrl로 속성명 통일
                     title,
-                    tags: [],
+                    tags: tags,
                     memo: bulkMemo || '', // 일괄 메모 적용
                     addedDate: new Date().toISOString(),
                     favorite: false
@@ -3829,6 +4831,7 @@
                 
                 assets.unshift(newAsset);
                 successCount++;
+                bulkResults.push({ url: link, status: "success" });
                 
                 // 각 요청 사이에 딜레이 (프록시 서버 부하 방지 & 안정성 향상)
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -3859,26 +4862,22 @@
             // 저장 성공시 임시 데이터 초기화
             tempModalData.bulk = {};
             
-            // 모달 닫기
-            closeBulkAddModal();
+            // 입력 필드 초기화
+            document.getElementById('bulkLinks').value = '';
+            document.getElementById('bulkMemo').value = '';
+            document.getElementById('bulkTags').value = '';
+            document.getElementById('bulkCategory').value = '';
             
-            // 성공 메시지
-            if (successCount > 0) {
-                showToast(`${successCount}개의 에셋이 추가되었습니다!`, 'success');
-            }
+            // 모달 닫기 (임시 저장 건너뛰기)
+            closeBulkAddModal(true);
             
-            // 삭제된/접근 실패한 페이지가 있으면 별도 알림
-            if (skippedCount > 0) {
-                const delay = successCount > 0 ? 500 : 0;
-                setTimeout(() => {
-                    showToast(`⚠️ ${skippedCount}개의 페이지를 생략했습니다 (삭제된 상품 또는 접근 실패)`, 'info');
-                }, delay);
-            }
-            
-            // 아무것도 추가되지 않은 경우
-            if (successCount === 0 && skippedCount === 0) {
-                showToast('추가할 에셋이 없습니다', 'error');
-            }
+            // 결과 모달 표시
+            showBulkResultModal({
+                success: successCount,
+                duplicate: duplicateCount,
+                failed: failedCount,
+                details: bulkResults
+            });
         }
         
         // BOOTH 페이지에서 제목과 이미지 가져오기
@@ -4072,30 +5071,53 @@
         }
 
         // 페이지 로드 시 초기화
-        window.addEventListener('DOMContentLoaded', init);
-        
-        // 모달 외부 클릭 시 닫기
-        document.getElementById('assetModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
+        window.addEventListener('DOMContentLoaded', function() {
+            init();
+            
+            // 이벤트 리스너 등록
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            if (selectAllBtn) selectAllBtn.addEventListener('click', selectAllFiltered);
+            
+            const bulkResultModal = document.getElementById('bulkResultModal');
+            if (bulkResultModal) {
+                bulkResultModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeBulkResultModal();
+                });
             }
-        });
-
-        document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSettingsModal();
+            
+            const assetModal = document.getElementById('assetModal');
+            if (assetModal) {
+                assetModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
             }
-        });
 
-        document.getElementById('resetConfirmModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeResetConfirmModal();
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeSettingsModal();
+                });
             }
-        });
 
-        document.getElementById('bulkAddModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeBulkAddModal();
+            const resetConfirmModal = document.getElementById('resetConfirmModal');
+            if (resetConfirmModal) {
+                resetConfirmModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeResetConfirmModal();
+                });
+            }
+
+            const bulkAddModal = document.getElementById('bulkAddModal');
+            if (bulkAddModal) {
+                bulkAddModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeBulkAddModal();
+                });
+            }
+
+            const bulkEditModal = document.getElementById('bulkEditModal');
+            if (bulkEditModal) {
+                bulkEditModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeBulkEditModal();
+                });
             }
         });
     </script>
